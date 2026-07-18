@@ -12,7 +12,6 @@ export default defineConfig({
   title: 'مِداد',
   projectId,
   dataset,
-  basePath: '/studio',
   plugins: [structureTool({ structure }), visionTool()],
   schema: { types: schemaTypes },
 });
