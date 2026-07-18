@@ -54,3 +54,23 @@ a {
   font-weight: 700;
   font-style: italic;
 }
+
+/* For large single hero/feature illustrations with irregular painted edges
+   (watercolor-style assets) — fades the hard rectangular crop into var(--paper)
+   instead of a clean object-fit crop. Apply only to the <img> itself, at
+   specific high-impact spots (hero, article cover); leave the default hard
+   crop everywhere else — photography, portraits, and anything in a tight
+   grid (bestseller covers, archive cards) still wants a clean rectangle.
+   Maintained as live CSS masking rather than pre-feathered PNG assets: it
+   works on whatever an editor uploads through Sanity with no extra image-prep
+   step, and the fade amount stays centrally adjustable here. mask-image has
+   solid support in current Chrome/Edge/Firefox/Safari; the -webkit- prefix
+   below covers older Safari. */
+.bleed-image {
+  mask-image: radial-gradient(ellipse closest-side at center, #000 82%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse closest-side at center, #000 82%, transparent 100%);
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+  -webkit-mask-size: 100% 100%;
+}
