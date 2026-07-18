@@ -1,48 +1,54 @@
 ---
-import { getCollection } from 'astro:content';
+import { client, queries, imageUrl } from '../../lib/sanity';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import InterviewCard from '../../components/InterviewCard.astro';
 import { formatArabicDate } from '../../lib/formatDate';
 
-const interviews = (await getCollection('interview')).sort(
-  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()
+const interviews = (await client.fetch(queries.interviews)).sort(
+  (a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
 );
-const featured = interviews.find((i) => i.data.featured) ?? interviews[0];
-const rest = interviews.filter((i) => i.id !== featured.id);
+const featured = interviews.find((i: any) => i.featured) ?? interviews[0];
+const rest = featured ? interviews.filter((i: any) => i.id !== featured.id) : [];
 ---
 
 <BaseLayout title="حوارات — مِداد" activeKey="interviews">
 
 <p class="page-intro ui">أحاديث مطوّلة مع كتّاب وناشرين ومترجمين، عن كواليس وأحوال عالم الكتابة والنشر</p>
 
-<section class="featured">
-  <a class="portrait ui" href={`/interviews/${featured.id}/`}>
-    {featured.data.portraitImage ? <img src={featured.data.portraitImage} alt="" /> : 'صورة الضيف'}
-  </a>
-  <div class="content">
-    <div class="subject ui">حوار مع {featured.data.guestRole}</div>
-    <a href={`/interviews/${featured.id}/`}><h2 class="display">{featured.data.title}</h2></a>
-    <p class="lead">{featured.data.excerpt}</p>
-    <div class="byline ui">حوارات — {formatArabicDate(featured.data.publishedAt)}</div>
-  </div>
-</section>
+{featured ? (
+  <section class="featured">
+    <a class="portrait ui" href={`/interviews/${featured.id}/`}>
+      {featured.portraitImage ? <img src={imageUrl(featured.portraitImage, 700)} alt="" /> : 'صورة الضيف'}
+    </a>
+    <div class="content">
+      <div class="subject ui">حوار مع {featured.guestRole}</div>
+      <a href={`/interviews/${featured.id}/`}><h2 class="display">{featured.title}</h2></a>
+      <p class="lead">{featured.excerpt}</p>
+      <div class="byline ui">حوارات — {formatArabicDate(new Date(featured.publishedAt))}</div>
+    </div>
+  </section>
+) : (
+  <p class="page-intro ui">لا يوجد حوارات منشورة بعد.</p>
+)}
 
-<section class="interviews-section">
-  <div class="section-head">
-    <h2 class="display">حوارات سابقة</h2>
-  </div>
-  <div class="interviews-grid">
-    {rest.map((interview) => (
-      <InterviewCard
-        href={`/interviews/${interview.id}/`}
-        portraitSrc={interview.data.portraitImage}
-        subject={`حوار مع ${interview.data.guestRole}`}
-        title={interview.data.title}
-        meta={formatArabicDate(interview.data.publishedAt)}
-      />
-    ))}
-  </div>
-</section>
+{rest.length > 0 && (
+  <section class="interviews-section">
+    <div class="section-head">
+      <h2 class="display">حوارات سابقة</h2>
+    </div>
+    <div class="interviews-grid">
+      {rest.map((interview: any) => (
+        <InterviewCard
+          href={`/interviews/${interview.id}/`}
+          portraitSrc={imageUrl(interview.portraitImage, 500)}
+          subject={`حوار مع ${interview.guestRole}`}
+          title={interview.title}
+          meta={formatArabicDate(new Date(interview.publishedAt))}
+        />
+      ))}
+    </div>
+  </section>
+)}
 
 </BaseLayout>
 

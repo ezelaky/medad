@@ -1,5 +1,5 @@
 import { createClient, type SanityClient } from '@sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
+import { createImageUrlBuilder } from '@sanity/image-url';
 
 const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = import.meta.env.PUBLIC_SANITY_DATASET || 'production';
@@ -15,10 +15,18 @@ export const client: SanityClient | null = sanityConfigured
   ? createClient({ projectId, dataset, apiVersion, useCdn: true })
   : null;
 
-const builder = client ? imageUrlBuilder(client) : null;
+const builder = client ? createImageUrlBuilder(client) : null;
 export function urlFor(source: unknown) {
   if (!builder) throw new Error('Sanity is not configured — set PUBLIC_SANITY_PROJECT_ID in .env');
   return builder.image(source as never);
+}
+
+// Convenience wrapper for the common case: a possibly-empty Sanity image
+// field (author hasn't uploaded one yet) resolved straight to a URL string.
+export function imageUrl(source: unknown, width?: number): string | undefined {
+  if (!source) return undefined;
+  const b = width ? urlFor(source).width(width) : urlFor(source);
+  return b.url();
 }
 
 // --- GROQ queries, one per content collection in src/content.config.ts ---

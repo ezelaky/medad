@@ -1,10 +1,12 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
+import { client, queries, imageUrl } from '../lib/sanity';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BookCoverCard from '../components/BookCoverCard.astro';
 
-const settings = await getEntry('siteSettings', 'singleton');
-const bestsellers = (await getCollection('bestsellerEntry')).sort((a, b) => a.data.rank - b.data.rank);
+const [settings, bestsellers] = await Promise.all([
+  client.fetch(queries.siteSettings),
+  client.fetch(queries.bestsellerEntries),
+]);
 
 const tabs = ['روايات', 'غير روائي', 'الأكثر مبيعًا للشباب'];
 ---
@@ -14,25 +16,25 @@ const tabs = ['روايات', 'غير روائي', 'الأكثر مبيعًا ل
 <p class="page-intro ui">قائمة مِداد الأسبوعية، معتمدة على بيانات المبيعات من شبكة من المكتبات والمنصات العربية والأجنبية</p>
 
 <div class="list-meta">
-  <span>الأسبوع من <span class="week">{settings?.data.bestsellersWeekOf}</span></span>
+  <span>الأسبوع من <span class="week">{settings?.bestsellersWeekOf ?? '—'}</span></span>
   <div class="tabs ui">
     {tabs.map((tab) => <a href="#" class={tab === 'روايات' ? 'active' : ''}>{tab}</a>)}
   </div>
 </div>
 
 <section class="bestseller-list">
-  {bestsellers.map((entry) => (
+  {bestsellers.length > 0 ? bestsellers.map((entry: any) => (
     <BookCoverCard
       variant="rank"
-      coverSrc={entry.data.coverImage}
-      title={entry.data.bookTitle}
-      rank={entry.data.rank}
-      author={entry.data.author}
-      publisher={entry.data.publisher}
-      trend={entry.data.trend}
-      weeksOnList={entry.data.weeksOnList}
+      coverSrc={imageUrl(entry.coverImage, 200)}
+      title={entry.bookTitle}
+      rank={entry.rank}
+      author={entry.author}
+      publisher={entry.publisher}
+      trend={entry.trend}
+      weeksOnList={entry.weeksOnList}
     />
-  ))}
+  )) : <p class="ui">لا يوجد قائمة منشورة بعد.</p>}
 
   <div class="archive-link"><a href="#">قوائم الأسابيع السابقة ←</a></div>
 </section>

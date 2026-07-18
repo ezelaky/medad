@@ -1,46 +1,52 @@
 ---
-import { getCollection } from 'astro:content';
+import { client, queries, imageUrl } from '../../lib/sanity';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BookCoverCard from '../../components/BookCoverCard.astro';
 import RedactedVerdict from '../../components/RedactedVerdict.astro';
 
-const entries = await getCollection('bannedBookEntry');
-const featured = entries.find((e) => e.data.featured) ?? entries[0];
-const archive = entries.filter((e) => e.id !== featured.id);
+const entries = await client.fetch(queries.bannedBookEntries);
+const featured = entries.find((e: any) => e.featured) ?? entries[0];
+const archive = featured ? entries.filter((e: any) => e.id !== featured.id) : [];
 ---
 
 <BaseLayout title="أرشيف الكتب الممنوعة — مِداد" activeKey="banned">
 
 <p class="page-intro ui">كتب حاول البعض إسكاتها عبر التاريخ. نحكي متى، ومَن قرر، ولماذا — وأين وصل الكتاب اليوم.<br />اضغط على أي سطر مغطّى لتكشف الحكم الرسمي.</p>
 
-<section class="featured">
-  <div class="cover">
-    {featured.data.coverImage && <img src={featured.data.coverImage} alt="أرشيف" />}
-    <div class="badge"><span class="yr">{featured.data.year}</span><span class="place">{featured.data.country}</span></div>
-  </div>
-  <div class="content">
-    <a href={`/banned-books/${featured.id}/`}><h2 class="display">{featured.data.bookTitle}</h2></a>
-    <p class="lead">{featured.data.summary}</p>
-    <RedactedVerdict text={featured.data.officialReason} />
-  </div>
-</section>
+{featured ? (
+  <section class="featured">
+    <div class="cover">
+      {featured.coverImage && <img src={imageUrl(featured.coverImage, 700)} alt="أرشيف" />}
+      <div class="badge"><span class="yr">{featured.year}</span><span class="place">{featured.country}</span></div>
+    </div>
+    <div class="content">
+      <a href={`/banned-books/${featured.id}/`}><h2 class="display">{featured.bookTitle}</h2></a>
+      <p class="lead">{featured.summary}</p>
+      <RedactedVerdict text={featured.officialReason} />
+    </div>
+  </section>
+) : (
+  <p class="page-intro ui">لا يوجد كتب ممنوعة منشورة بعد.</p>
+)}
 
-<section class="browse">
-  <div class="section-head">
-    <h2 class="display">من الأرشيف</h2>
-  </div>
-  <div class="browse-grid">
-    {archive.map((entry) => (
-      <BookCoverCard
-        variant="browse"
-        href={`/banned-books/${entry.id}/`}
-        coverSrc={entry.data.coverImage}
-        title={entry.data.bookTitle}
-        tagText={`${entry.data.year} — ${entry.data.country}`}
-      />
-    ))}
-  </div>
-</section>
+{archive.length > 0 && (
+  <section class="browse">
+    <div class="section-head">
+      <h2 class="display">من الأرشيف</h2>
+    </div>
+    <div class="browse-grid">
+      {archive.map((entry: any) => (
+        <BookCoverCard
+          variant="browse"
+          href={`/banned-books/${entry.id}/`}
+          coverSrc={imageUrl(entry.coverImage, 400)}
+          title={entry.bookTitle}
+          tagText={`${entry.year} — ${entry.country}`}
+        />
+      ))}
+    </div>
+  </section>
+)}
 
 </BaseLayout>
 

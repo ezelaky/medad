@@ -1,32 +1,32 @@
 ---
-import { getCollection } from 'astro:content';
+import { client, queries, imageUrl } from '../../lib/sanity';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BookCoverCard from '../../components/BookCoverCard.astro';
 import RedactedVerdict from '../../components/RedactedVerdict.astro';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('bannedBookEntry');
-  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  const entries = await client.fetch(queries.bannedBookEntries);
+  return entries.map((entry: any) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
 const { entry } = Astro.props;
 
-const others = (await getCollection('bannedBookEntry'))
-  .filter((e) => e.id !== entry.id)
+const others = (await client.fetch(queries.bannedBookEntries))
+  .filter((e: any) => e.id !== entry.id)
   .slice(0, 4);
 ---
 
-<BaseLayout title={`${entry.data.bookTitle} — أرشيف الكتب الممنوعة — مِداد`} description={entry.data.summary} activeKey="banned">
+<BaseLayout title={`${entry.bookTitle} — أرشيف الكتب الممنوعة — مِداد`} description={entry.summary} activeKey="banned">
 
 <section class="featured">
   <div class="cover">
-    {entry.data.coverImage && <img src={entry.data.coverImage} alt="" />}
-    <div class="badge"><span class="yr">{entry.data.year}</span><span class="place">{entry.data.country}</span></div>
+    {entry.coverImage && <img src={imageUrl(entry.coverImage, 700)} alt="" />}
+    <div class="badge"><span class="yr">{entry.year}</span><span class="place">{entry.country}</span></div>
   </div>
   <div class="content">
-    <h1 class="display">{entry.data.bookTitle}</h1>
-    <p class="lead">{entry.data.summary}</p>
-    <RedactedVerdict text={entry.data.officialReason} />
+    <h1 class="display">{entry.bookTitle}</h1>
+    <p class="lead">{entry.summary}</p>
+    <RedactedVerdict text={entry.officialReason} />
   </div>
 </section>
 
@@ -36,13 +36,13 @@ const others = (await getCollection('bannedBookEntry'))
       <h2 class="display">من الأرشيف أيضًا</h2>
     </div>
     <div class="browse-grid">
-      {others.map((other) => (
+      {others.map((other: any) => (
         <BookCoverCard
           variant="browse"
           href={`/banned-books/${other.id}/`}
-          coverSrc={other.data.coverImage}
-          title={other.data.bookTitle}
-          tagText={`${other.data.year} — ${other.data.country}`}
+          coverSrc={imageUrl(other.coverImage, 400)}
+          title={other.bookTitle}
+          tagText={`${other.year} — ${other.country}`}
         />
       ))}
     </div>

@@ -1,50 +1,53 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { client, queries, imageUrl } from '../../lib/sanity';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import { formatArabicDate } from '../../lib/formatDate';
+import { renderPortableText } from '../../lib/portableText';
 
 export async function getStaticPaths() {
-  const longReads = await getCollection('longRead');
-  return longReads.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  const list = await client.fetch(queries.longReads);
+  const entries = await Promise.all(
+    list.map((r: any) => client.fetch(queries.longReadBySlug, { slug: r.id }))
+  );
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
 const { entry } = Astro.props;
-const { Content } = await render(entry);
 
-const others = (await getCollection('longRead'))
-  .filter((r) => r.id !== entry.id)
-  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
+const others = (await client.fetch(queries.longReads))
+  .filter((r: any) => r.id !== entry.id)
+  .sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
   .slice(0, 3);
 ---
 
-<BaseLayout title={`${entry.data.title} — مِداد`} description={entry.data.dek} activeKey="reads">
+<BaseLayout title={`${entry.title} — مِداد`} description={entry.dek} activeKey="reads">
 
 <article>
   <div class="article-head">
     <div class="eyebrow ui">ملف خاص — قراءات مطوّلة</div>
-    <h1 class="display">{entry.data.title}</h1>
-    <p class="dek">{entry.data.dek}</p>
+    <h1 class="display">{entry.title}</h1>
+    <p class="dek">{entry.dek}</p>
     <div class="byline ui">
-      <span>بقلم {entry.data.author}</span>
+      <span>بقلم {entry.author}</span>
       <span class="author-dot"></span>
-      <span>{entry.data.readingTime}</span>
+      <span>{entry.readingTime}</span>
       <span class="author-dot"></span>
-      <span>{formatArabicDate(entry.data.publishedAt)}</span>
+      <span>{formatArabicDate(new Date(entry.publishedAt))}</span>
     </div>
   </div>
 
   <div class="article-cover">
-    <div class="frame ui">{entry.data.coverImage ? <img src={entry.data.coverImage} alt="" /> : 'الصورة الرئيسية للمقال'}</div>
+    <div class="frame ui">{entry.coverImage ? <img src={imageUrl(entry.coverImage, 1200)} alt="" /> : 'الصورة الرئيسية للمقال'}</div>
   </div>
   <div class="cover-caption ui">تصوير توضيحي — مِداد</div>
 
   <div class="article-body">
-    <Content />
+    {entry.body?.length > 0 && <div set:html={renderPortableText(entry.body)} />}
 
-    {entry.data.tags.length > 0 && (
+    {entry.tags?.length > 0 && (
       <div class="tags">
-        {entry.data.tags.map((tag) => <span class="tag ui">{tag}</span>)}
+        {entry.tags.map((tag: string) => <span class="tag ui">{tag}</span>)}
       </div>
     )}
   </div>
@@ -54,14 +57,14 @@ const others = (await getCollection('longRead'))
   <section class="related">
     <h2 class="display">مقالات ذات صلة</h2>
     <div class="related-grid">
-      {others.map((other) => (
+      {others.map((other: any) => (
         <ArticleCard
           variant="news"
           href={`/reads/${other.id}/`}
-          coverSrc={other.data.coverImage}
+          coverSrc={imageUrl(other.coverImage, 500)}
           coverPlaceholder="صورة"
-          title={other.data.title}
-          meta={`قراءات مطوّلة — ${formatArabicDate(other.data.publishedAt)}`}
+          title={other.title}
+          meta={`قراءات مطوّلة — ${formatArabicDate(new Date(other.publishedAt))}`}
         />
       ))}
     </div>

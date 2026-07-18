@@ -1,45 +1,48 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { client, queries, imageUrl } from '../../lib/sanity';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import InterviewCard from '../../components/InterviewCard.astro';
 import { formatArabicDate } from '../../lib/formatDate';
+import { renderPortableText } from '../../lib/portableText';
 
 export async function getStaticPaths() {
-  const interviews = await getCollection('interview');
-  return interviews.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  const list = await client.fetch(queries.interviews);
+  const entries = await Promise.all(
+    list.map((i: any) => client.fetch(queries.interviewBySlug, { slug: i.id }))
+  );
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
 const { entry } = Astro.props;
-const { Content } = await render(entry);
 
-const others = (await getCollection('interview'))
-  .filter((i) => i.id !== entry.id)
-  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
+const others = (await client.fetch(queries.interviews))
+  .filter((i: any) => i.id !== entry.id)
+  .sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
   .slice(0, 3);
 ---
 
-<BaseLayout title={`${entry.data.title} — مِداد`} description={entry.data.excerpt} activeKey="interviews">
+<BaseLayout title={`${entry.title} — مِداد`} description={entry.excerpt} activeKey="interviews">
 
 <article>
   <div class="article-head">
-    <div class="eyebrow ui">حوار مع {entry.data.guestRole}</div>
-    <h1 class="display">{entry.data.title}</h1>
-    <p class="dek">{entry.data.excerpt}</p>
+    <div class="eyebrow ui">حوار مع {entry.guestRole}</div>
+    <h1 class="display">{entry.title}</h1>
+    <p class="dek">{entry.excerpt}</p>
     <div class="byline ui">
-      <span>{entry.data.guestName}</span>
+      <span>{entry.guestName}</span>
       <span class="author-dot"></span>
-      <span>{formatArabicDate(entry.data.publishedAt)}</span>
+      <span>{formatArabicDate(new Date(entry.publishedAt))}</span>
     </div>
   </div>
 
-  {entry.data.portraitImage && (
+  {entry.portraitImage && (
     <div class="article-cover">
-      <div class="frame"><img src={entry.data.portraitImage} alt="" /></div>
+      <div class="frame"><img src={imageUrl(entry.portraitImage, 700)} alt="" /></div>
     </div>
   )}
 
   <div class="article-body">
-    <Content />
+    {entry.body?.length > 0 && <div set:html={renderPortableText(entry.body)} />}
   </div>
 </article>
 
@@ -47,13 +50,13 @@ const others = (await getCollection('interview'))
   <section class="related">
     <h2 class="display">حوارات أخرى</h2>
     <div class="related-grid">
-      {others.map((other) => (
+      {others.map((other: any) => (
         <InterviewCard
           href={`/interviews/${other.id}/`}
-          portraitSrc={other.data.portraitImage}
-          subject={`حوار مع ${other.data.guestRole}`}
-          title={other.data.title}
-          meta={formatArabicDate(other.data.publishedAt)}
+          portraitSrc={imageUrl(other.portraitImage, 500)}
+          subject={`حوار مع ${other.guestRole}`}
+          title={other.title}
+          meta={formatArabicDate(new Date(other.publishedAt))}
         />
       ))}
     </div>
