@@ -34,7 +34,7 @@ const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slic
     <div class="frame"><img src="/hero-index.jpg" alt="مكتبة" /></div>
     <div class="text">
       <div class="hero-tag ui">مقال رئيسي</div>
-      <h1 class="display">الكتاب، الناشر، والقارئ العربي — في مكان واحد</h1>
+      <h1 class="display-lg">الكتاب، الناشر، والقارئ العربي — في مكان واحد</h1>
       <p class="lead">نتابع سوق النشر العربي يوميًا: أخبار، عروض، قوائم الأكثر مبيعًا، وملفات خاصة — وفي قلب الموقع أرشيف حي للكتب التي حاول أحد ما إسكاتها.</p>
       {longReadFeat && (
         <>
@@ -77,7 +77,7 @@ const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slic
       <div class="section-head"><h2>قراءات طويلة</h2><a href="/reads/">عرض الكل ←</a></div>
       <a href={`/reads/${longReadFeat.id}/`}>
         <div class="cover ui">{longReadFeat.coverImage ? <img src={imageUrl(longReadFeat.coverImage, 600)} alt="" /> : 'صورة'}</div>
-        <h3 class="display">{longReadFeat.title}</h3>
+        <h3 class="display-sm">{longReadFeat.title}</h3>
         <p>{longReadFeat.dek}</p>
       </a>
     </div>
@@ -90,14 +90,14 @@ const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slic
         <div class="cover">{book.coverImage && <img src={imageUrl(book.coverImage, 300)} alt="" />}</div>
       ))}
     </div>
-    <h4 class="display">كل ما صدر حديثًا</h4>
+    <h4 class="display-sm">كل ما صدر حديثًا</h4>
     <p class="desc">رواية، دراسة، شعر، سيرة...</p>
   </div>
 
   <div class="trio-col voices">
     <div class="section-head"><h2>أصوات من العالم</h2><a href="#">عرض الكل ←</a></div>
     <div class="cover">صورة</div>
-    <h4 class="display">هل تنجو الصحافة الثقافية في الغرب؟</h4>
+    <h4 class="display-sm">هل تنجو الصحافة الثقافية في الغرب؟</h4>
     <p class="desc">قراءة في مستقبل المجلات الأدبية والثقافية</p>
   </div>
 </section>

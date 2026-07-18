@@ -7,7 +7,7 @@ import { urlFor } from './sanity';
 const components: Partial<PortableTextComponents> = {
   types: {
     pullQuote: ({ value }) => `
-      <div class="pull-quote display">
+      <div class="pull-quote display-lg">
         ${value.quote}
         ${value.attribution ? `<span class="ui">${value.attribution}</span>` : ''}
       </div>
@@ -18,6 +18,10 @@ const components: Partial<PortableTextComponents> = {
         <figcaption class="ui">${value.caption ?? ''}</figcaption>
       </figure>
     `,
+  },
+  block: {
+    // matches article.html's hand-authored <h2 class="display"> section headings
+    h2: ({ children }) => `<h2 class="display-lg">${children}</h2>`,
   },
 };
 

@@ -26,7 +26,7 @@ const { href, coverSrc, coverAlt = '', coverPlaceholder = 'صورة', tag, title
   <a href={href} class="article-card latest">
     <div class="cover ui">{coverSrc ? <img src={coverSrc} alt={coverAlt} /> : coverPlaceholder}</div>
     {tag && <div class="tag ui">{tag}</div>}
-    <h3 class="display">{title}</h3>
+    <h3 class="display-sm">{title}</h3>
     <div class="meta">{meta}</div>
   </a>
 )}

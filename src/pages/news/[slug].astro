@@ -26,7 +26,7 @@ const others = (await client.fetch(queries.articles))
 <article>
   <div class="article-head">
     <div class="eyebrow ui">{entry.category}</div>
-    <h1 class="display">{entry.title}</h1>
+    <h1 class="display-lg">{entry.title}</h1>
     <p class="dek">{entry.excerpt}</p>
     <div class="byline ui">
       <span>أخبار النشر</span>
@@ -48,7 +48,7 @@ const others = (await client.fetch(queries.articles))
 
 {others.length > 0 && (
   <section class="related">
-    <h2 class="display">أخبار أخرى</h2>
+    <h2 class="display-lg">أخبار أخرى</h2>
     <div class="related-grid">
       {others.map((other: any) => (
         <ArticleCard

@@ -30,7 +30,7 @@ const RankTag = href ? 'a' : 'div';
 
 {variant === 'rank' && (
   <RankTag {...(href ? { href } : {})} class="rank-row">
-    <div class="rank-num display">{rank !== undefined && arabicDigits.format(rank)}</div>
+    <div class="rank-num display-lg">{rank !== undefined && arabicDigits.format(rank)}</div>
     <div class="rank-cover ui">{coverSrc ? <img src={coverSrc} alt={coverAlt} /> : title}</div>
     <div class="rank-info">
       <h3>{title}</h3>

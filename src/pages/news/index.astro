@@ -22,7 +22,7 @@ const rest = featured ? articles.filter((a: any) => a.id !== featured.id) : [];
     </a>
     <div class="content">
       <div class="tag ui">الخبر الرئيسي</div>
-      <a href={`/news/${featured.id}/`}><h2 class="display">{featured.title}</h2></a>
+      <a href={`/news/${featured.id}/`}><h2 class="display-lg">{featured.title}</h2></a>
       <p class="lead">{featured.excerpt}</p>
       <div class="byline ui">{featured.category} — {formatArabicDate(new Date(featured.publishedAt))}</div>
     </div>
@@ -34,7 +34,7 @@ const rest = featured ? articles.filter((a: any) => a.id !== featured.id) : [];
 {rest.length > 0 && (
   <section class="news-section">
     <div class="section-head">
-      <h2 class="display">أحدث الأخبار</h2>
+      <h2 class="display-lg">أحدث الأخبار</h2>
     </div>
     <div class="news-grid">
       {rest.map((article: any) => (

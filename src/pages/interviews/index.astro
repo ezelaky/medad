@@ -22,7 +22,7 @@ const rest = featured ? interviews.filter((i: any) => i.id !== featured.id) : []
     </a>
     <div class="content">
       <div class="subject ui">حوار مع {featured.guestRole}</div>
-      <a href={`/interviews/${featured.id}/`}><h2 class="display">{featured.title}</h2></a>
+      <a href={`/interviews/${featured.id}/`}><h2 class="display-lg">{featured.title}</h2></a>
       <p class="lead">{featured.excerpt}</p>
       <div class="byline ui">حوارات — {formatArabicDate(new Date(featured.publishedAt))}</div>
     </div>
@@ -34,7 +34,7 @@ const rest = featured ? interviews.filter((i: any) => i.id !== featured.id) : []
 {rest.length > 0 && (
   <section class="interviews-section">
     <div class="section-head">
-      <h2 class="display">حوارات سابقة</h2>
+      <h2 class="display-lg">حوارات سابقة</h2>
     </div>
     <div class="interviews-grid">
       {rest.map((interview: any) => (

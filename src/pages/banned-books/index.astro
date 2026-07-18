@@ -20,7 +20,7 @@ const archive = featured ? entries.filter((e: any) => e.id !== featured.id) : []
       <div class="badge"><span class="yr">{featured.year}</span><span class="place">{featured.country}</span></div>
     </div>
     <div class="content">
-      <a href={`/banned-books/${featured.id}/`}><h2 class="display">{featured.bookTitle}</h2></a>
+      <a href={`/banned-books/${featured.id}/`}><h2 class="display-lg">{featured.bookTitle}</h2></a>
       <p class="lead">{featured.summary}</p>
       <RedactedVerdict text={featured.officialReason} />
     </div>
@@ -32,7 +32,7 @@ const archive = featured ? entries.filter((e: any) => e.id !== featured.id) : []
 {archive.length > 0 && (
   <section class="browse">
     <div class="section-head">
-      <h2 class="display">من الأرشيف</h2>
+      <h2 class="display-lg">من الأرشيف</h2>
     </div>
     <div class="browse-grid">
       {archive.map((entry: any) => (

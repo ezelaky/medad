@@ -24,7 +24,15 @@ body {
   line-height: 1.9;
 }
 
-.display {
+/* Aref Ruqaa's calligraphic strokes read beautifully at headline scale (it's
+   the same family the logo's character is built around) but blur together
+   below ~1.2rem — use display-lg for headlines/titles, display-sm (Markazi
+   Text, which has optical sizing) for card titles, tags, and other small text. */
+.display-lg {
+  font-family: 'Aref Ruqaa', serif;
+}
+
+.display-sm {
   font-family: 'Markazi Text', serif;
 }
 
