@@ -4,27 +4,31 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import { formatArabicDate } from '../../lib/formatDate';
 
+// This listing ignores article.featured entirely — the top story here is
+// always the single most recent article, so publishing a new خبر takes the
+// slot automatically. (Compare index.astro's homepage hero, which stays on
+// the editor-controlled featured flag by design — a separate, deliberate slot.)
 const articles = (await client.fetch(queries.articles)).sort(
   (a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
 );
-const featured = articles.find((a: any) => a.featured) ?? articles[0];
-const rest = featured ? articles.filter((a: any) => a.id !== featured.id) : [];
+const topStory = articles[0];
+const rest = articles.slice(1);
 ---
 
 <BaseLayout title="أخبار النشر — مِداد" activeKey="news">
 
 <p class="page-intro ui">كل ما يحدث في سوق النشر العربي أولًا بأول</p>
 
-{featured ? (
+{topStory ? (
   <section class="featured">
-    <a class="cover" href={`/news/${featured.id}/`}>
-      {featured.coverImage ? <img src={imageUrl(featured.coverImage, 800)} alt="مكتبة" /> : 'مكتبة'}
+    <a class="cover" href={`/news/${topStory.id}/`}>
+      {topStory.coverImage ? <img src={imageUrl(topStory.coverImage, 800)} alt="مكتبة" /> : 'مكتبة'}
     </a>
     <div class="content">
       <div class="tag ui">الخبر الرئيسي</div>
-      <a href={`/news/${featured.id}/`}><h2 class="display-lg">{featured.title}</h2></a>
-      <p class="lead">{featured.excerpt}</p>
-      <div class="byline ui">{featured.category} — {formatArabicDate(new Date(featured.publishedAt))}</div>
+      <a href={`/news/${topStory.id}/`}><h2 class="display-lg">{topStory.title}</h2></a>
+      <p class="lead">{topStory.excerpt}</p>
+      <div class="byline ui">{topStory.category} — {formatArabicDate(new Date(topStory.publishedAt))}</div>
     </div>
   </section>
 ) : (
