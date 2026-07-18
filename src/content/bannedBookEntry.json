@@ -1,0 +1,92 @@
+[
+  {
+    "id": "featured-1959",
+    "bookTitle": "عنوان الكتاب",
+    "year": "١٩٥٩",
+    "country": "مصر",
+    "coverImage": "/featured-banned.jpg",
+    "summary": "صدرت الرواية وسط ضجة إعلامية غير مسبوقة، ومُنعت من التداول لسنوات قبل أن تعود إلى المكتبات بعد جدل قانوني طويل.",
+    "officialReason": "وصفتها لجنة الرقابة بأنها \"تمس القيم العامة\"، رغم دفاع نقاد بارزين عنها آنذاك.",
+    "featured": true
+  },
+  {
+    "id": "mawsim-alhijra",
+    "bookTitle": "موسم الهجرة إلى الشمال",
+    "year": "١٩٦٦",
+    "country": "السودان",
+    "coverImage": "/covers/cover-04.jpg",
+    "summary": "بيانات الملف الكامل لم تُدخل بعد — يرجى إضافة الملخص الموثّق.",
+    "officialReason": "بيانات السبب الرسمي لم تُدخل بعد — يرجى إضافة النص الموثّق.",
+    "featured": false
+  },
+  {
+    "id": "awlad-haretna",
+    "bookTitle": "أولاد حارتنا",
+    "year": "١٩٥٩",
+    "country": "مصر",
+    "coverImage": "/covers/cover-05.jpg",
+    "summary": "بيانات الملف الكامل لم تُدخل بعد — يرجى إضافة الملخص الموثّق.",
+    "officialReason": "بيانات السبب الرسمي لم تُدخل بعد — يرجى إضافة النص الموثّق.",
+    "featured": false
+  },
+  {
+    "id": "walima-liashab-albahr",
+    "bookTitle": "وليمة لأعشاب البحر",
+    "year": "١٩٨٣",
+    "country": "الكويت",
+    "coverImage": "/covers/cover-06.jpg",
+    "summary": "بيانات الملف الكامل لم تُدخل بعد — يرجى إضافة الملخص الموثّق.",
+    "officialReason": "بيانات السبب الرسمي لم تُدخل بعد — يرجى إضافة النص الموثّق.",
+    "featured": false
+  },
+  {
+    "id": "dhakirat-aljasad",
+    "bookTitle": "ذاكرة الجسد",
+    "year": "١٩٩٣",
+    "country": "أكثر من بلد",
+    "coverImage": "/covers/cover-07.jpg",
+    "summary": "بيانات الملف الكامل لم تُدخل بعد — يرجى إضافة الملخص الموثّق.",
+    "officialReason": "بيانات السبب الرسمي لم تُدخل بعد — يرجى إضافة النص الموثّق.",
+    "featured": false
+  },
+  {
+    "id": "ayat-shaytaniya",
+    "bookTitle": "آيات شيطانية",
+    "year": "١٩٨٨",
+    "country": "أكثر من بلد",
+    "coverImage": "/covers/cover-08.jpg",
+    "summary": "بيانات الملف الكامل لم تُدخل بعد — يرجى إضافة الملخص الموثّق.",
+    "officialReason": "بيانات السبب الرسمي لم تُدخل بعد — يرجى إضافة النص الموثّق.",
+    "featured": false
+  },
+  {
+    "id": "imarat-yaqoubian",
+    "bookTitle": "عمارة يعقوبيان",
+    "year": "٢٠٠٢",
+    "country": "مصر",
+    "coverImage": "/covers/cover-09.jpg",
+    "summary": "بيانات الملف الكامل لم تُدخل بعد — يرجى إضافة الملخص الموثّق.",
+    "officialReason": "بيانات السبب الرسمي لم تُدخل بعد — يرجى إضافة النص الموثّق.",
+    "featured": false
+  },
+  {
+    "id": "huna-bayrut",
+    "bookTitle": "هنا بيروت",
+    "year": "٢٠٠٣",
+    "country": "لبنان",
+    "coverImage": "/covers/cover-02.jpg",
+    "summary": "بيانات الملف الكامل لم تُدخل بعد — يرجى إضافة الملخص الموثّق.",
+    "officialReason": "بيانات السبب الرسمي لم تُدخل بعد — يرجى إضافة النص الموثّق.",
+    "featured": false
+  },
+  {
+    "id": "sharq-almutawassit",
+    "bookTitle": "شرق المتوسط",
+    "year": "١٩٧٥",
+    "country": "السعودية",
+    "coverImage": "/covers/cover-03.jpg",
+    "summary": "بيانات الملف الكامل لم تُدخل بعد — يرجى إضافة الملخص الموثّق.",
+    "officialReason": "بيانات السبب الرسمي لم تُدخل بعد — يرجى إضافة النص الموثّق.",
+    "featured": false
+  }
+]

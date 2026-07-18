@@ -1,0 +1,25 @@
+---
+interface Props {
+  src?: string;
+  alt?: string;
+  caption: string;
+}
+const { src, alt = '', caption } = Astro.props;
+---
+
+<figure class="inline-figure">
+  <div class="frame ui">{src ? <img src={src} alt={alt} /> : <slot />}</div>
+  <figcaption class="ui">{caption}</figcaption>
+</figure>
+
+<style>
+  .inline-figure { margin: 44px 0; }
+  .frame {
+    aspect-ratio: 16 / 9; border-radius: 2px; overflow: hidden;
+    background: linear-gradient(160deg, #e7e0d1, #d8cfba);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-soft); font-size: 0.8rem;
+  }
+  .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  figcaption { font-size: 0.78rem; color: var(--ink-soft); margin-top: 10px; text-align: center; }
+</style>

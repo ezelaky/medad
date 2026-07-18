@@ -1,0 +1,33 @@
+{
+  "name": "midad-astro",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "sanity:login": "sanity login",
+    "sanity:init": "sanity init --env .env",
+    "sanity:deploy-studio": "sanity deploy"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^7.0.3",
+    "@astrojs/react": "^6.0.1",
+    "@portabletext/to-html": "^5.0.2",
+    "@sanity/astro": "^3.4.2",
+    "@sanity/client": "^7.23.2",
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^6.5.0",
+    "astro": "^7.1.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "sanity": "^6.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1"
+  }
+}

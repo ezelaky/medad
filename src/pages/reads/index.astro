@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+
+const longReads = (await getCollection('longRead')).sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()
+);
+---
+
+<BaseLayout title="ملفات — مِداد" activeKey="reads">
+
+<p class="page-intro ui">قراءات مطوّلة وملفات خاصة في صناعة النشر والأدب العربي</p>
+
+<section class="reads-section">
+  <div class="reads-grid">
+    {longReads.map((entry) => (
+      <ArticleCard
+        variant="news"
+        href={`/reads/${entry.id}/`}
+        coverSrc={entry.data.coverImage}
+        coverPlaceholder="صورة"
+        title={entry.data.title}
+        meta={`${entry.data.readingTime} — ${entry.data.author}`}
+      />
+    ))}
+  </div>
+</section>
+
+</BaseLayout>
+
+<style>
+  .reads-section { max-width: 1200px; margin: 0 auto; padding: 0 6vw 10vh; }
+  .reads-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+  @media (max-width: 900px) {
+    .reads-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .reads-grid { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,164 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { formatArabicDate } from '../lib/formatDate';
+
+const [articles, interviews, bannedBooks, longReads, bestsellers] = await Promise.all([
+  getCollection('article'),
+  getCollection('interview'),
+  getCollection('bannedBookEntry'),
+  getCollection('longRead'),
+  getCollection('bestsellerEntry'),
+]);
+
+// Homepage "أحدث المقالات" pulls the most recent items across every content
+// type — mirrors the original mockup's mixed tags (أدب / حوارات / كتب ممنوعة / تقارير).
+const latest = [
+  ...articles.map((e) => ({ href: `/news/${e.id}/`, tag: e.data.category, title: e.data.title, date: e.data.publishedAt as Date | undefined, cover: e.data.coverImage })),
+  ...interviews.map((e) => ({ href: `/interviews/${e.id}/`, tag: 'حوارات', title: e.data.title, date: e.data.publishedAt as Date | undefined, cover: e.data.portraitImage })),
+  ...longReads.map((e) => ({ href: `/reads/${e.id}/`, tag: 'قراءات مطوّلة', title: e.data.title, date: e.data.publishedAt as Date | undefined, cover: e.data.coverImage })),
+]
+  .sort((a, b) => b.date!.getTime() - a.date!.getTime())
+  .slice(0, 5);
+
+const longReadFeat = longReads.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())[0];
+const newBooks = bestsellers.sort((a, b) => a.data.rank - b.data.rank).slice(0, 4);
+---
+
+<BaseLayout title="مِداد — أخبار الكتب وثقافة النشر" activeKey="home">
+
+<div class="hero-wrap">
+  <div class="hero-card">
+    <div class="frame"><img src="/hero-index.jpg" alt="مكتبة" /></div>
+    <div class="text">
+      <div class="hero-tag ui">مقال رئيسي</div>
+      <h1 class="display">الكتاب، الناشر، والقارئ العربي — في مكان واحد</h1>
+      <p class="lead">نتابع سوق النشر العربي يوميًا: أخبار، عروض، قوائم الأكثر مبيعًا، وملفات خاصة — وفي قلب الموقع أرشيف حي للكتب التي حاول أحد ما إسكاتها.</p>
+      <div class="hero-byline ui">بقلم: فريق التحرير &nbsp; {formatArabicDate(longReadFeat.data.publishedAt)}</div>
+      <a class="read-more" href={`/reads/${longReadFeat.id}/`}>
+        اقرأ المزيد
+        <svg viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="dots">
+    <span class="active"></span><span></span><span></span><span></span><span></span>
+  </div>
+</div>
+
+<section class="latest">
+  <div class="section-head">
+    <h2>أحدث المقالات</h2>
+    <a href="/news/">عرض الكل ←</a>
+  </div>
+  <div class="latest-grid">
+    {latest.map((item) => (
+      <ArticleCard
+        variant="latest"
+        href={item.href}
+        coverSrc={item.cover}
+        tag={item.tag}
+        title={item.title}
+        meta={formatArabicDate(item.date!)}
+      />
+    ))}
+  </div>
+</section>
+
+<section class="trio">
+  <div class="trio-col longread-feat">
+    <div class="section-head"><h2>قراءات طويلة</h2><a href="/reads/">عرض الكل ←</a></div>
+    <a href={`/reads/${longReadFeat.id}/`}>
+      <div class="cover ui">{longReadFeat.data.coverImage ? <img src={longReadFeat.data.coverImage} alt="" /> : 'صورة'}</div>
+      <h3 class="display">{longReadFeat.data.title}</h3>
+      <p>{longReadFeat.data.dek}</p>
+    </a>
+  </div>
+
+  <div class="trio-col">
+    <div class="section-head"><h2>كتب جديدة</h2><a href="/bestsellers/">عرض الكل ←</a></div>
+    <div class="books-grid">
+      {newBooks.map((book) => (
+        <div class="cover">{book.data.coverImage && <img src={book.data.coverImage} alt="" />}</div>
+      ))}
+    </div>
+    <h4 class="display">كل ما صدر حديثًا</h4>
+    <p class="desc">رواية، دراسة، شعر، سيرة...</p>
+  </div>
+
+  <div class="trio-col voices">
+    <div class="section-head"><h2>أصوات من العالم</h2><a href="#">عرض الكل ←</a></div>
+    <div class="cover">صورة</div>
+    <h4 class="display">هل تنجو الصحافة الثقافية في الغرب؟</h4>
+    <p class="desc">قراءة في مستقبل المجلات الأدبية والثقافية</p>
+  </div>
+</section>
+
+</BaseLayout>
+
+<style>
+  .hero-wrap { max-width: 1300px; margin: 0 auto; padding: 5vh 6vw 3vh; }
+  .hero-card {
+    border: 1px solid var(--line); background: var(--card);
+    display: flex; align-items: stretch; overflow: hidden;
+  }
+  .hero-card .frame {
+    flex: 0 0 46%; background: linear-gradient(150deg, #e7e0d1, #d8cfba);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-card .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero-card .text { flex: 1; padding: 5vh 4vw; display: flex; flex-direction: column; justify-content: center; }
+  .hero-tag { color: var(--red); font-size: 0.85rem; font-weight: 600; margin-bottom: 14px; }
+  .hero-card h1 { font-size: clamp(1.7rem, 2.6vw, 2.3rem); line-height: 1.5; margin: 0 0 18px; }
+  .hero-card p.lead { color: var(--ink-soft); font-size: 1rem; margin: 0 0 20px; }
+  .hero-byline { font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 18px; }
+  .read-more {
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink);
+    font-family: 'IBM Plex Sans Arabic', sans-serif; font-weight: 600; font-size: 0.9rem; width: fit-content;
+  }
+  .read-more svg { width: 16px; height: 16px; stroke: var(--ink); fill: none; stroke-width: 1.8; }
+
+  .dots { display: flex; justify-content: center; gap: 7px; margin-top: 20px; }
+  .dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
+  .dots span.active { background: var(--red); }
+
+  .latest { max-width: 1300px; margin: 0 auto; padding: 2vh 6vw 6vh; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 26px; }
+  .section-head h2 { font-size: 1.2rem; margin: 0; font-family: 'IBM Plex Sans Arabic', sans-serif; font-weight: 600; }
+  .section-head a { font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 0.82rem; color: var(--ink-soft); text-decoration: none; }
+  .latest-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+
+  .trio { max-width: 1300px; margin: 0 auto; padding: 2vh 6vw 10vh; display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 32px; }
+  .trio-col .section-head { font-size: 1.05rem; }
+  .trio-col > a { text-decoration: none; color: inherit; display: block; }
+  .longread-feat .cover {
+    aspect-ratio: 16 / 10; background: linear-gradient(150deg, #e7e0d1, #d8cfba);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 16px; overflow: hidden;
+  }
+  .longread-feat .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .longread-feat h3 { font-size: 1.15rem; margin: 0 0 8px; }
+  .longread-feat p { font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 0.85rem; color: var(--ink-soft); margin: 0; }
+
+  .books-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+  .books-grid .cover {
+    aspect-ratio: 3 / 4.3; background: linear-gradient(150deg, #e7e0d1, #d8cfba);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .books-grid .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .trio-col h4 { font-size: 1rem; margin: 0 0 6px; }
+  .trio-col p.desc { font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 0.82rem; color: var(--ink-soft); margin: 0; }
+
+  .voices .cover {
+    aspect-ratio: 16 / 10; background: linear-gradient(150deg, #dcd3bd, #c9bd9f);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 16px;
+  }
+
+  @media (max-width: 900px) {
+    .hero-card { flex-direction: column; }
+    .latest-grid { grid-template-columns: repeat(2, 1fr); }
+    .trio { grid-template-columns: 1fr; gap: 44px; }
+  }
+</style>

@@ -1,0 +1,79 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BookCoverCard from '../../components/BookCoverCard.astro';
+import RedactedVerdict from '../../components/RedactedVerdict.astro';
+
+const entries = await getCollection('bannedBookEntry');
+const featured = entries.find((e) => e.data.featured) ?? entries[0];
+const archive = entries.filter((e) => e.id !== featured.id);
+---
+
+<BaseLayout title="أرشيف الكتب الممنوعة — مِداد" activeKey="banned">
+
+<p class="page-intro ui">كتب حاول البعض إسكاتها عبر التاريخ. نحكي متى، ومَن قرر، ولماذا — وأين وصل الكتاب اليوم.<br />اضغط على أي سطر مغطّى لتكشف الحكم الرسمي.</p>
+
+<section class="featured">
+  <div class="cover">
+    {featured.data.coverImage && <img src={featured.data.coverImage} alt="أرشيف" />}
+    <div class="badge"><span class="yr">{featured.data.year}</span><span class="place">{featured.data.country}</span></div>
+  </div>
+  <div class="content">
+    <a href={`/banned-books/${featured.id}/`}><h2 class="display">{featured.data.bookTitle}</h2></a>
+    <p class="lead">{featured.data.summary}</p>
+    <RedactedVerdict text={featured.data.officialReason} />
+  </div>
+</section>
+
+<section class="browse">
+  <div class="section-head">
+    <h2 class="display">من الأرشيف</h2>
+  </div>
+  <div class="browse-grid">
+    {archive.map((entry) => (
+      <BookCoverCard
+        variant="browse"
+        href={`/banned-books/${entry.id}/`}
+        coverSrc={entry.data.coverImage}
+        title={entry.data.bookTitle}
+        tagText={`${entry.data.year} — ${entry.data.country}`}
+      />
+    ))}
+  </div>
+</section>
+
+</BaseLayout>
+
+<style>
+  .featured { max-width: 1200px; margin: 0 auto 8vh; padding: 0 6vw; display: flex; gap: 44px; align-items: flex-start; }
+  .featured .cover {
+    flex: 0 0 34%; aspect-ratio: 3 / 4; border-radius: 2px; position: relative; overflow: hidden;
+    background: linear-gradient(160deg, #e7e0d1, #d8cfba);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Sans Arabic', sans-serif; color: var(--ink-soft); font-size: 0.8rem;
+  }
+  .featured .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .featured .cover .badge {
+    position: absolute; bottom: 0; right: 0; left: 0;
+    background: linear-gradient(to top, rgba(23, 21, 18, 0.82), transparent);
+    color: var(--paper); padding: 20px 16px 12px; text-align: right;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+  }
+  .featured .cover .badge .yr { display: block; font-size: 1rem; font-weight: 600; }
+  .featured .cover .badge .place { display: block; font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+  .featured .content { flex: 1; }
+  .featured .content > a { text-decoration: none; color: inherit; }
+  .featured h2 { font-size: clamp(1.5rem, 2.6vw, 2rem); margin: 0 0 16px; line-height: 1.5; }
+  .featured p.lead { color: var(--ink-soft); font-size: 1rem; margin: 0 0 8px; }
+
+  .browse { max-width: 1200px; margin: 0 auto 10vh; padding: 0 6vw; }
+  .browse .section-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--ink); padding-bottom: 14px; margin-bottom: 32px; }
+  .browse .section-head h2 { font-size: 1.3rem; margin: 0; }
+  .browse-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+
+  @media (max-width: 700px) {
+    .featured { flex-direction: column; }
+    .featured .cover { flex: none; width: 100%; }
+    .browse-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

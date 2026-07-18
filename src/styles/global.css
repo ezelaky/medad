@@ -1,0 +1,48 @@
+:root {
+  --paper: #F6F2E9;
+  --ink: #17140F;
+  --ink-soft: #55504A;
+  --red: #C4362A;
+  --crimson: #C4362A; /* alias — same value as --red, used interchangeably across pages */
+  --brass: #A8823E;
+  --line: rgba(23, 20, 15, 0.13);
+  --card: #FFFFFF;
+  --redact: #171512;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Noto Naskh Arabic', serif;
+  line-height: 1.9;
+}
+
+.display {
+  font-family: 'Aref Ruqaa', serif;
+}
+
+.ui {
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+.page-intro {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4vh 6vw 3vh;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  text-align: center;
+  font-weight: 700;
+  font-style: italic;
+}

@@ -1,0 +1,84 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { formatArabicDate } from '../../lib/formatDate';
+
+const articles = (await getCollection('article')).sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()
+);
+const featured = articles.find((a) => a.data.featured) ?? articles[0];
+const rest = articles.filter((a) => a.id !== featured.id);
+---
+
+<BaseLayout title="أخبار النشر — مِداد" activeKey="news">
+
+<p class="page-intro ui">كل ما يحدث في سوق النشر العربي أولًا بأول</p>
+
+<section class="featured">
+  <a class="cover" href={`/news/${featured.id}/`}>
+    {featured.data.coverImage ? <img src={featured.data.coverImage} alt="مكتبة" /> : 'مكتبة'}
+  </a>
+  <div class="content">
+    <div class="tag ui">الخبر الرئيسي</div>
+    <a href={`/news/${featured.id}/`}><h2 class="display">{featured.data.title}</h2></a>
+    <p class="lead">{featured.data.excerpt}</p>
+    <div class="byline ui">{featured.data.category} — {formatArabicDate(featured.data.publishedAt)}</div>
+  </div>
+</section>
+
+<section class="news-section">
+  <div class="section-head">
+    <h2 class="display">أحدث الأخبار</h2>
+  </div>
+  <div class="news-grid">
+    {rest.map((article) => (
+      <ArticleCard
+        variant="news"
+        href={`/news/${article.id}/`}
+        coverSrc={article.data.coverImage}
+        coverPlaceholder="صورة الخبر"
+        title={article.data.title}
+        meta={formatArabicDate(article.data.publishedAt)}
+      />
+    ))}
+  </div>
+  <div class="load-more"><button class="ui">تحميل المزيد</button></div>
+</section>
+
+</BaseLayout>
+
+<style>
+  .featured { max-width: 1200px; margin: 0 auto 8vh; padding: 0 6vw; display: flex; gap: 44px; align-items: flex-start; }
+  .featured .cover {
+    flex: 0 0 50%; aspect-ratio: 16 / 10; border-radius: 2px; overflow: hidden;
+    background: linear-gradient(160deg, #e7e0d1, #d8cfba); display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Sans Arabic', sans-serif; color: var(--ink-soft); font-size: 0.85rem;
+    text-decoration: none;
+  }
+  .featured .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .featured .content { flex: 1; }
+  .featured .content > a { text-decoration: none; color: inherit; }
+  .featured .tag { color: var(--crimson); font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; }
+  .featured h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); margin: 0 0 16px; line-height: 1.5; }
+  .featured p.lead { color: var(--ink-soft); font-size: 1.02rem; margin: 0 0 14px; }
+  .featured .byline { font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 0.8rem; color: var(--brass); }
+
+  .news-section { max-width: 1200px; margin: 0 auto; padding: 0 6vw 8vh; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--ink); padding-bottom: 14px; margin-bottom: 32px; }
+  .section-head h2 { font-size: 1.3rem; margin: 0; }
+  .news-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+
+  .load-more { display: flex; justify-content: center; margin-top: 44px; }
+  .load-more button {
+    font-family: 'IBM Plex Sans Arabic', sans-serif; background: none; border: 1px solid var(--ink);
+    color: var(--ink); padding: 12px 30px; border-radius: 2px; font-size: 0.9rem; cursor: pointer;
+  }
+  .load-more button:hover { background: var(--ink); color: var(--paper); }
+
+  @media (max-width: 900px) {
+    .featured { flex-direction: column; }
+    .featured .cover { flex: none; width: 100%; }
+    .news-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

@@ -1,0 +1,92 @@
+---
+interface Props {
+  /** omit for rank variant to render a non-interactive row — no bestseller detail page exists yet */
+  href?: string;
+  coverSrc?: string;
+  coverAlt?: string;
+  title: string;
+  variant: 'rank' | 'browse';
+  // rank variant (bestsellers.astro)
+  rank?: number;
+  author?: string;
+  publisher?: string;
+  trend?: 'up' | 'down' | 'same';
+  weeksOnList?: string;
+  // browse variant (banned-books archive grid)
+  tagText?: string;
+}
+
+const trendGlyph = { up: '↑', down: '↓', same: '–' };
+const arabicDigits = new Intl.NumberFormat('ar-EG-u-nu-arab');
+
+const {
+  href, coverSrc, coverAlt = '', title, variant,
+  rank, author, publisher, trend, weeksOnList,
+  tagText,
+} = Astro.props;
+
+const RankTag = href ? 'a' : 'div';
+---
+
+{variant === 'rank' && (
+  <RankTag {...(href ? { href } : {})} class="rank-row">
+    <div class="rank-num display">{rank !== undefined && arabicDigits.format(rank)}</div>
+    <div class="rank-cover ui">{coverSrc ? <img src={coverSrc} alt={coverAlt} /> : title}</div>
+    <div class="rank-info">
+      <h3>{title}</h3>
+      <p>{author} — {publisher}</p>
+    </div>
+    <div class:list={['trend', 'ui', trend]}>
+      {trend && trendGlyph[trend]}
+      <span class="weeks">{weeksOnList}</span>
+    </div>
+  </RankTag>
+)}
+
+{variant === 'browse' && (
+  <a href={href} class="browse-card">
+    <div class="cover ui">{coverSrc ? <img src={coverSrc} alt={coverAlt} /> : title}</div>
+    <div class="meta">
+      <h3>{title}</h3>
+      <span class="tag ui">{tagText}</span>
+    </div>
+  </a>
+)}
+
+<style>
+  a, .rank-row { text-decoration: none; color: inherit; display: block; }
+
+  /* rank variant — bestsellers.astro .rank-row */
+  .rank-row {
+    display: flex; align-items: center; gap: 24px; padding: 22px 0; border-bottom: 1px solid var(--line);
+  }
+  .rank-num { font-size: 2.2rem; color: var(--crimson); width: 50px; text-align: center; flex-shrink: 0; }
+  .rank-cover {
+    flex: 0 0 70px; aspect-ratio: 3 / 4.2; border-radius: 2px; overflow: hidden;
+    background: linear-gradient(160deg, #e7e0d1, #d8cfba);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; color: var(--ink-soft); text-align: center;
+  }
+  .rank-cover img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 2px; }
+  .rank-info { flex: 1; }
+  .rank-info h3 { font-size: 1.1rem; margin: 0 0 4px; }
+  .rank-info p { margin: 0; font-size: 0.85rem; color: var(--ink-soft); font-family: 'IBM Plex Sans Arabic', sans-serif; }
+  .trend { font-size: 0.78rem; flex-shrink: 0; text-align: center; width: 70px; }
+  .trend.up { color: #3d7a4d; }
+  .trend.down { color: var(--crimson); }
+  .trend.same { color: var(--ink-soft); }
+  .trend .weeks { display: block; font-size: 0.68rem; color: var(--ink-soft); margin-top: 2px; }
+
+  /* browse variant — banned-books/index.astro .browse-card */
+  .browse-card { background: var(--card); border: 1px solid var(--line); }
+  .browse-card .cover {
+    aspect-ratio: 3 / 4.2; overflow: hidden;
+    background: linear-gradient(160deg, #e7e0d1, #d8cfba);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; color: var(--ink-soft);
+  }
+  .browse-card .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .browse-card .meta { padding: 12px 14px; }
+  .browse-card h3 { font-size: 0.92rem; margin: 0 0 4px; }
+  .browse-card .tag { font-size: 0.72rem; color: var(--brass); }
+</style>

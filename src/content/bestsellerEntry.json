@@ -1,0 +1,12 @@
+[
+  { "id": "1", "rank": 1, "bookTitle": "عنوان الكتاب الأول", "author": "اسم المؤلف", "publisher": "دار النشر", "coverImage": "/covers/cover-00.jpg", "trend": "up", "weeksOnList": "٦ أسابيع", "listCategory": "روايات" },
+  { "id": "2", "rank": 2, "bookTitle": "عنوان الكتاب الثاني", "author": "اسم المؤلف", "publisher": "دار النشر", "coverImage": "/covers/cover-01.jpg", "trend": "same", "weeksOnList": "٣ أسابيع", "listCategory": "روايات" },
+  { "id": "3", "rank": 3, "bookTitle": "عنوان الكتاب الثالث", "author": "اسم المؤلف", "publisher": "دار النشر", "coverImage": "/covers/cover-02.jpg", "trend": "down", "weeksOnList": "٩ أسابيع", "listCategory": "روايات" },
+  { "id": "4", "rank": 4, "bookTitle": "عنوان الكتاب الرابع", "author": "اسم المؤلف", "publisher": "دار النشر", "coverImage": "/covers/cover-03.jpg", "trend": "up", "weeksOnList": "جديد", "listCategory": "روايات" },
+  { "id": "5", "rank": 5, "bookTitle": "عنوان الكتاب الخامس", "author": "اسم المؤلف", "publisher": "دار النشر", "coverImage": "/covers/cover-04.jpg", "trend": "same", "weeksOnList": "٢ أسابيع", "listCategory": "روايات" },
+  { "id": "6", "rank": 6, "bookTitle": "عنوان الكتاب السادس", "author": "اسم المؤلف", "publisher": "دار النشر", "coverImage": "/covers/cover-05.jpg", "trend": "down", "weeksOnList": "٤ أسابيع", "listCategory": "روايات" },
+  { "id": "7", "rank": 7, "bookTitle": "عنوان الكتاب السابع", "author": "اسم المؤلف", "publisher": "دار النشر", "coverImage": "/covers/cover-06.jpg", "trend": "up", "weeksOnList": "جديد", "listCategory": "روايات" },
+  { "id": "8", "rank": 8, "bookTitle": "عنوان الكتاب الثامن", "author": "اسم المؤلف", "publisher": "دار النشر", "coverImage": "/covers/cover-07.jpg", "trend": "same", "weeksOnList": "١١ أسبوعًا", "listCategory": "روايات" },
+  { "id": "9", "rank": 9, "bookTitle": "عنوان الكتاب التاسع", "author": "اسم المؤلف", "publisher": "دار النشر", "coverImage": "/covers/cover-08.jpg", "trend": "down", "weeksOnList": "٥ أسابيع", "listCategory": "روايات" },
+  { "id": "10", "rank": 10, "bookTitle": "عنوان الكتاب العاشر", "author": "اسم المؤلف", "publisher": "دار النشر", "coverImage": "/covers/cover-09.jpg", "trend": "up", "weeksOnList": "جديد", "listCategory": "روايات" }
+]

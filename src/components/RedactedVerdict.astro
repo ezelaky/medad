@@ -1,0 +1,45 @@
+---
+interface Props {
+  label?: string;
+  text: string;
+  hint?: string;
+}
+
+const { label = 'السبب الرسمي للمنع:', text, hint = 'اضغط لتكشف النص' } = Astro.props;
+---
+
+<div class="verdict">
+  <div class="verdict-label ui">{label}</div>
+  <div class="brush-wrap">
+    <span class="truth">{text}</span>
+    <span class="brush-stroke"></span>
+  </div>
+  <div class="hint ui">{hint}</div>
+</div>
+
+<script>
+  document.querySelectorAll('.brush-wrap').forEach((el) => {
+    el.addEventListener('click', () => el.classList.toggle('revealed'));
+  });
+</script>
+
+<style>
+  /* the signature: a hand-painted brush stroke covering the verdict line, not a clean rectangle */
+  .verdict { margin-top: 22px; }
+  .verdict-label { font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 8px; }
+  .brush-wrap {
+    position: relative; display: inline-block; max-width: 100%;
+    padding: 10px 4px; cursor: pointer;
+  }
+  .brush-wrap .truth { color: var(--ink); font-size: 1.05rem; }
+  .brush-stroke {
+    position: absolute; inset: -6px -8px;
+    background: #111;
+    transition: transform .6s cubic-bezier(.4, 0, .2, 1), opacity .6s ease;
+  }
+  .brush-wrap.revealed .brush-stroke {
+    transform: translateX(115%);
+    opacity: 0;
+  }
+  .hint { font-size: 0.75rem; color: var(--brass); margin-top: 8px; }
+</style>

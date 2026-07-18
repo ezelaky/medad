@@ -1,0 +1,43 @@
+---
+interface Props {
+  href: string;
+  portraitSrc?: string;
+  portraitAlt?: string;
+  portraitPlaceholder?: string;
+  subject: string;
+  title: string;
+  meta: string;
+}
+
+const { href, portraitSrc, portraitAlt = '', portraitPlaceholder = 'صورة الضيف', subject, title, meta } = Astro.props;
+---
+
+<a href={href} class="interview-card">
+  <div class="portrait">
+    {portraitSrc ? <img src={portraitSrc} alt={portraitAlt} /> : portraitPlaceholder}
+  </div>
+  <div class="meta-block">
+    <div class="subject ui">{subject}</div>
+    <h3>{title}</h3>
+    <p class="ui">{meta}</p>
+  </div>
+</a>
+
+<style>
+  .interview-card {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--card); border: 1px solid var(--line);
+  }
+  .portrait {
+    aspect-ratio: 3 / 4;
+    background: linear-gradient(160deg, #e7e0d1, #d8cfba);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 0.75rem; color: var(--ink-soft);
+    overflow: hidden;
+  }
+  .portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .meta-block { padding: 16px; }
+  .subject { font-size: 0.78rem; color: var(--crimson); margin-bottom: 6px; }
+  h3 { font-size: 1rem; margin: 0 0 6px; line-height: 1.6; }
+  .meta-block p { margin: 0; font-size: 0.8rem; color: var(--ink-soft); }
+</style>
