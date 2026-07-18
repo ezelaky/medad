@@ -4,12 +4,35 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import { formatArabicDate } from '../lib/formatDate';
 
-const [articles, interviews, longReads, bestsellers] = await Promise.all([
+const [articles, interviews, longReads, bestsellers, homepage] = await Promise.all([
   client.fetch(queries.articles),
   client.fetch(queries.interviews),
   client.fetch(queries.longReads),
   client.fetch(queries.bestsellerEntries),
+  client.fetch(queries.homepage),
 ]);
+
+// heroItems can mix article/interview/longRead/bannedBookEntry — resolve
+// each to a common shape by _type rather than assuming one content type.
+const routePrefixes: Record<string, string> = {
+  article: '/news/',
+  interview: '/interviews/',
+  longRead: '/reads/',
+  bannedBookEntry: '/banned-books/',
+};
+
+function resolveHeroItem(item: any) {
+  return {
+    href: `${routePrefixes[item._type]}${item.id}/`,
+    title: item.title ?? item.bookTitle,
+    excerpt: item.excerpt ?? item.dek ?? item.summary,
+    cover: imageUrl(item.coverImage ?? item.portraitImage, 900),
+    date: item.publishedAt,
+  };
+}
+
+const heroItems: any[] = homepage?.heroItems ?? [];
+const heroSlide = heroItems[0] ? resolveHeroItem(heroItems[0]) : null;
 
 // Homepage "أحدث المقالات" pulls the most recent items across every content
 // type — mirrors the original mockup's mixed tags (أدب / حوارات / كتب ممنوعة / تقارير).
@@ -29,28 +52,38 @@ const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slic
 
 <BaseLayout title="مِداد — أخبار الكتب وثقافة النشر" activeKey="home">
 
-<div class="hero-wrap">
-  <div class="hero-card">
-    <div class="frame"><img class="bleed-image" src="/hero-index.jpg" alt="مكتبة" /></div>
-    <div class="text">
-      <div class="hero-tag ui">مقال رئيسي</div>
-      <h1 class="display-lg">الكتاب، الناشر، والقارئ العربي — في مكان واحد</h1>
-      <p class="lead">نتابع سوق النشر العربي يوميًا: أخبار، عروض، قوائم الأكثر مبيعًا، وملفات خاصة — وفي قلب الموقع أرشيف حي للكتب التي حاول أحد ما إسكاتها.</p>
-      {longReadFeat && (
-        <>
-          <div class="hero-byline ui">بقلم: فريق التحرير &nbsp; {formatArabicDate(new Date(longReadFeat.publishedAt))}</div>
-          <a class="read-more" href={`/reads/${longReadFeat.id}/`}>
-            اقرأ المزيد
-            <svg viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>
-          </a>
-        </>
-      )}
+{heroSlide ? (
+  <div class="hero-wrap">
+    <div class="hero-card">
+      <div class="frame">
+        {heroSlide.cover ? (
+          <img class="bleed-image" src={heroSlide.cover} alt="" />
+        ) : (
+          <div class="frame-placeholder ui">صورة</div>
+        )}
+      </div>
+      <div class="text">
+        <div class="hero-tag ui">مقال رئيسي</div>
+        <h1 class="display-lg">{heroSlide.title}</h1>
+        {heroSlide.excerpt && <p class="lead">{heroSlide.excerpt}</p>}
+        {heroSlide.date && (
+          <div class="hero-byline ui">بقلم: فريق التحرير &nbsp; {formatArabicDate(new Date(heroSlide.date))}</div>
+        )}
+        <a class="read-more" href={heroSlide.href}>
+          اقرأ المزيد
+          <svg viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>
+        </a>
+      </div>
     </div>
+    {heroItems.length > 1 && (
+      <div class="dots">
+        {heroItems.map((_, i) => <span class={i === 0 ? 'active' : ''}></span>)}
+      </div>
+    )}
   </div>
-  <div class="dots">
-    <span class="active"></span><span></span><span></span><span></span><span></span>
-  </div>
-</div>
+) : (
+  <p class="page-intro ui">لم يتم اختيار عناصر للصفحة الرئيسية بعد.</p>
+)}
 
 <section class="latest">
   <div class="section-head">
@@ -115,6 +148,7 @@ const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slic
     display: flex; align-items: center; justify-content: center;
   }
   .hero-card .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .frame-placeholder { color: var(--ink-soft); font-size: 0.85rem; }
   .hero-card .text { flex: 1; padding: 5vh 4vw; display: flex; flex-direction: column; justify-content: center; }
   .hero-tag { color: var(--red); font-size: 0.85rem; font-weight: 600; margin-bottom: 14px; }
   .hero-card h1 { font-size: clamp(1.7rem, 2.6vw, 2.3rem); line-height: 1.5; margin: 0 0 18px; }

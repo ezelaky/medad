@@ -12,7 +12,6 @@ export default defineType({
     defineField({ name: 'body', title: 'المحتوى', type: 'array', of: [{ type: 'block' }] }),
     defineField({ name: 'category', title: 'التصنيف', type: 'string', validation: (r) => r.required() }),
     defineField({ name: 'publishedAt', title: 'تاريخ النشر', type: 'datetime', validation: (r) => r.required() }),
-    defineField({ name: 'featured', title: 'خبر رئيسي', type: 'boolean', initialValue: false }),
   ],
   preview: {
     select: { title: 'title', subtitle: 'category', media: 'coverImage' },

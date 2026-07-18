@@ -1,7 +1,8 @@
 import type { StructureResolver } from 'sanity/structure';
 
-// Pins siteSettings to a single editable document (no list, no create/delete)
-// since bestsellersWeekOf must stay one site-wide value, not a collection.
+// Pins siteSettings and homepage to single editable documents (no list, no
+// create/delete) — bestsellersWeekOf must stay one site-wide value, and
+// homepage.heroItems is one ordered list an editor curates, not a collection.
 export const structure: StructureResolver = (S) =>
   S.list()
     .title('المحتوى')
@@ -12,6 +13,14 @@ export const structure: StructureResolver = (S) =>
       S.documentTypeListItem('bestsellerEntry').title('الأكثر مبيعًا'),
       S.documentTypeListItem('bannedBookEntry').title('الكتب الممنوعة'),
       S.divider(),
+      S.listItem()
+        .title('عناصر الصفحة الرئيسية')
+        .id('homepage')
+        .child(
+          S.document()
+            .schemaType('homepage')
+            .documentId('homepage')
+        ),
       S.listItem()
         .title('إعدادات الموقع')
         .id('siteSettings')

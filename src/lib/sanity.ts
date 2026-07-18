@@ -33,10 +33,10 @@ export function imageUrl(source: unknown, width?: number): string | undefined {
 
 export const queries = {
   articles: /* groq */ `*[_type == "article"] | order(publishedAt desc){
-    "id": slug.current, title, coverImage, excerpt, category, publishedAt, featured
+    "id": slug.current, title, coverImage, excerpt, category, publishedAt
   }`,
   articleBySlug: /* groq */ `*[_type == "article" && slug.current == $slug][0]{
-    "id": slug.current, title, coverImage, excerpt, body, category, publishedAt, featured
+    "id": slug.current, title, coverImage, excerpt, body, category, publishedAt
   }`,
 
   interviews: /* groq */ `*[_type == "interview"] | order(publishedAt desc){
@@ -65,4 +65,22 @@ export const queries = {
   }`,
 
   siteSettings: /* groq */ `*[_type == "siteSettings"][0]{ bestsellersWeekOf }`,
+
+  // Resolves each heroItems reference regardless of which of the 4 content
+  // types it points to — _type discriminates it in index.astro, which maps
+  // each type to its own title/excerpt/image field names and route prefix.
+  homepage: /* groq */ `*[_type == "homepage"][0]{
+    heroItems[]->{
+      _type,
+      "id": slug.current,
+      title,
+      bookTitle,
+      excerpt,
+      dek,
+      summary,
+      coverImage,
+      portraitImage,
+      publishedAt
+    }
+  }`,
 };
