@@ -66,21 +66,25 @@ export const queries = {
 
   siteSettings: /* groq */ `*[_type == "siteSettings"][0]{ bestsellersWeekOf }`,
 
-  // Resolves each heroItems reference regardless of which of the 4 content
-  // types it points to — _type discriminates it in index.astro, which maps
-  // each type to its own title/excerpt/image field names and route prefix.
+  // Each heroItems entry is {content, scrimStrength} — content resolves to
+  // whichever of the 4 types it references; _type discriminates it in
+  // index.astro, which maps each type to its own title/excerpt/image field
+  // names and route prefix. scrimStrength stays alongside, per slide.
   homepage: /* groq */ `*[_type == "homepage"][0]{
-    heroItems[]->{
-      _type,
-      "id": slug.current,
-      title,
-      bookTitle,
-      excerpt,
-      dek,
-      summary,
-      coverImage,
-      portraitImage,
-      publishedAt
+    heroItems[]{
+      scrimStrength,
+      content->{
+        _type,
+        "id": slug.current,
+        title,
+        bookTitle,
+        excerpt,
+        dek,
+        summary,
+        coverImage,
+        portraitImage,
+        publishedAt
+      }
     }
   }`,
 };

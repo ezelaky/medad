@@ -21,17 +21,24 @@ const routePrefixes: Record<string, string> = {
   bannedBookEntry: '/banned-books/',
 };
 
-function resolveHeroItem(item: any) {
+const scrimOpacity: Record<string, number> = { light: 0.25, medium: 0.45, strong: 0.65 };
+
+function resolveHeroItem(heroItem: any) {
+  const item = heroItem.content;
   return {
     href: `${routePrefixes[item._type]}${item.id}/`,
     title: item.title ?? item.bookTitle,
     excerpt: item.excerpt ?? item.dek ?? item.summary,
-    cover: imageUrl(item.coverImage ?? item.portraitImage, 900),
+    cover: imageUrl(item.coverImage ?? item.portraitImage, 1600),
     date: item.publishedAt,
+    scrimOpacity: scrimOpacity[heroItem.scrimStrength] ?? scrimOpacity.medium,
   };
 }
 
-const heroItems: any[] = homepage?.heroItems ?? [];
+// Filters out entries whose reference didn't resolve — e.g. left over from
+// the previous plain-reference heroItems shape, or a reference to an
+// unpublished/deleted document.
+const heroItems: any[] = (homepage?.heroItems ?? []).filter((h: any) => h?.content);
 const heroSlide = heroItems[0] ? resolveHeroItem(heroItems[0]) : null;
 
 // Homepage "أحدث المقالات" pulls the most recent items across every content
@@ -54,15 +61,14 @@ const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slic
 
 {heroSlide ? (
   <div class="hero-wrap">
-    <div class="hero-card">
-      <div class="frame bleed-image">
-        {heroSlide.cover ? (
-          <img src={heroSlide.cover} alt="" />
-        ) : (
-          <div class="frame-placeholder ui">صورة</div>
-        )}
-      </div>
-      <div class="text">
+    <div class="hero" style={`--scrim-opacity: ${heroSlide.scrimOpacity}`}>
+      {heroSlide.cover ? (
+        <img class="hero-image" src={heroSlide.cover} alt="" />
+      ) : (
+        <div class="hero-image hero-placeholder ui">صورة</div>
+      )}
+      <div class="hero-scrim"></div>
+      <div class="hero-text">
         <div class="hero-tag ui">مقال رئيسي</div>
         <h1 class="display-lg">{heroSlide.title}</h1>
         {heroSlide.excerpt && <p class="lead">{heroSlide.excerpt}</p>}
@@ -139,26 +145,44 @@ const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slic
 
 <style>
   .hero-wrap { max-width: 1300px; margin: 0 auto; padding: 5vh 6vw 3vh; }
-  .hero-card {
-    border: 1px solid var(--line); background: var(--card);
-    display: flex; align-items: stretch; overflow: hidden;
+  .hero {
+    position: relative;
+    aspect-ratio: 16 / 8;
+    overflow: hidden;
+    background: var(--paper);
+    border: 1px solid var(--line);
   }
-  .hero-card .frame {
-    flex: 0 0 46%; background: var(--paper);
+  .hero-image {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .hero-placeholder {
     display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(150deg, #e7e0d1, #d8cfba);
+    color: var(--ink-soft); font-size: 0.85rem;
   }
-  .hero-card .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .frame-placeholder { color: var(--ink-soft); font-size: 0.85rem; }
-  .hero-card .text { flex: 1; padding: 5vh 4vw; display: flex; flex-direction: column; justify-content: center; }
+  /* always-on gradient — every hero image gets it, regardless of brightness;
+     --scrim-opacity is set per-slide from the CMS (light/medium/strong) */
+  .hero-scrim {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to top, rgba(23, 20, 15, var(--scrim-opacity)) 0%, transparent 62%);
+  }
+  .hero-text {
+    position: absolute; inset: auto 0 0 0;
+    padding: 5vh 5vw 6vh;
+    text-align: right;
+  }
   .hero-tag { color: var(--red); font-size: 0.85rem; font-weight: 600; margin-bottom: 14px; }
-  .hero-card h1 { font-size: clamp(1.7rem, 2.6vw, 2.3rem); line-height: 1.5; margin: 0 0 18px; }
-  .hero-card p.lead { color: var(--ink-soft); font-size: 1rem; margin: 0 0 20px; }
-  .hero-byline { font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 18px; }
+  .hero-text h1 {
+    color: var(--paper); font-size: clamp(1.7rem, 3vw, 2.6rem); line-height: 1.5;
+    margin: 0 0 14px; max-width: 640px;
+  }
+  .hero-text p.lead { color: rgba(246, 242, 233, 0.88); font-size: 1rem; margin: 0 0 16px; max-width: 600px; }
+  .hero-byline { font-size: 0.82rem; color: rgba(246, 242, 233, 0.75); margin-bottom: 16px; }
   .read-more {
-    display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink);
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--paper);
     font-family: 'IBM Plex Sans Arabic', sans-serif; font-weight: 600; font-size: 0.9rem; width: fit-content;
   }
-  .read-more svg { width: 16px; height: 16px; stroke: var(--ink); fill: none; stroke-width: 1.8; }
+  .read-more svg { width: 16px; height: 16px; stroke: var(--paper); fill: none; stroke-width: 1.8; }
 
   .dots { display: flex; justify-content: center; gap: 7px; margin-top: 20px; }
   .dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
@@ -199,7 +223,9 @@ const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slic
   }
 
   @media (max-width: 900px) {
-    .hero-card { flex-direction: column; }
+    .hero { aspect-ratio: 4 / 5; }
+    .hero-text { padding: 4vh 6vw 5vh; }
+    .hero-text h1, .hero-text p.lead { max-width: none; }
     .latest-grid { grid-template-columns: repeat(2, 1fr); }
     .trio { grid-template-columns: 1fr; gap: 44px; }
   }
