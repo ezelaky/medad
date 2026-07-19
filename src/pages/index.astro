@@ -21,7 +21,7 @@ const routePrefixes: Record<string, string> = {
   bannedBookEntry: '/banned-books/',
 };
 
-const scrimOpacity: Record<string, number> = { light: 0.25, medium: 0.45, strong: 0.65 };
+const scrimOpacity: Record<string, number> = { light: 0.35, medium: 0.55, strong: 0.75 };
 
 function resolveHeroItem(heroItem: any) {
   const item = heroItem.content;
@@ -161,10 +161,19 @@ const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slic
     color: var(--ink-soft); font-size: 0.85rem;
   }
   /* always-on gradient — every hero image gets it, regardless of brightness;
-     --scrim-opacity is set per-slide from the CMS (light/medium/strong) */
+     --scrim-opacity is set per-slide from the CMS (light/medium/strong).
+     Reaches most of the frame's height (not just the bottom corner) so text
+     stays legible even over a busy/detailed part of the image, not just a
+     plain-wash area — full opacity at the bottom, half that through the
+     middle, clear only in the top ~15%. */
   .hero-scrim {
     position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(to top, rgba(23, 20, 15, var(--scrim-opacity)) 0%, transparent 62%);
+    background: linear-gradient(
+      to top,
+      rgba(23, 20, 15, var(--scrim-opacity)) 0%,
+      rgba(23, 20, 15, calc(var(--scrim-opacity) * 0.55)) 45%,
+      transparent 85%
+    );
   }
   .hero-text {
     position: absolute; inset: auto 0 0 0;

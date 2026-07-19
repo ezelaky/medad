@@ -7,12 +7,13 @@ const apiVersion = import.meta.env.PUBLIC_SANITY_API_VERSION || '2026-01-01';
 
 export const sanityConfigured = Boolean(projectId);
 
-// Only construct a real client once a Sanity project exists (see .env.example).
-// Pages currently read from src/content/ via Astro content collections —
-// swapping a page over to Sanity means replacing its getCollection() call
-// with the matching query below, keyed to fields with the same names.
+// useCdn: false is deliberate — these queries only ever run at build time
+// (static site, no client-side fetching), so there's no traffic volume to
+// justify the CDN cache, and its ~couple-minute staleness window meant a
+// fresh Cloudflare rebuild could still serve pre-publish data. The built
+// HTML is the actual cache visitors hit; the build itself needs live data.
 export const client: SanityClient | null = sanityConfigured
-  ? createClient({ projectId, dataset, apiVersion, useCdn: true })
+  ? createClient({ projectId, dataset, apiVersion, useCdn: false })
   : null;
 
 const builder = client ? createImageUrlBuilder(client) : null;
