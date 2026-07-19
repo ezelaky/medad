@@ -57,20 +57,33 @@ a {
 
 /* For large single hero/feature illustrations with irregular painted edges
    (watercolor-style assets) — fades the hard rectangular crop into var(--paper)
-   instead of a clean object-fit crop. Apply only to the <img> itself, at
-   specific high-impact spots (hero, article cover); leave the default hard
-   crop everywhere else — photography, portraits, and anything in a tight
-   grid (bestseller covers, archive cards) still wants a clean rectangle.
-   Maintained as live CSS masking rather than pre-feathered PNG assets: it
-   works on whatever an editor uploads through Sanity with no extra image-prep
-   step, and the fade amount stays centrally adjustable here. mask-image has
-   solid support in current Chrome/Edge/Firefox/Safari; the -webkit- prefix
-   below covers older Safari. */
+   instead of a clean object-fit crop. Apply to the *wrapping container*
+   (not the <img> itself), at specific high-impact spots (hero, article
+   cover); leave the default hard crop everywhere else — photography,
+   portraits, and anything in a tight grid (bestseller covers, archive
+   cards) still wants a clean rectangle.
+   Implemented as an inset box-shadow over the image, not a radial-gradient
+   mask: a single radial mask is inherently an ellipse, which can never
+   reach a rectangle's corners, so it always reads as an oval cutout rather
+   than a softened rectangle. An inset shadow follows the box's actual
+   rectangular geometry — corners stay part of the same shape, only the
+   outer band fades. It also avoids mask-composite's cross-browser
+   fragility entirely. Since these illustrations already have near-white/
+   paper edges by design, washing them toward --paper reads as the same
+   blend a true alpha fade would give, just via a simpler mechanism. */
 .bleed-image {
-  mask-image: radial-gradient(ellipse closest-side at center, #000 82%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse closest-side at center, #000 82%, transparent 100%);
-  mask-repeat: no-repeat;
-  -webkit-mask-repeat: no-repeat;
-  mask-size: 100% 100%;
-  -webkit-mask-size: 100% 100%;
+  position: relative;
+}
+.bleed-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 70px 60px var(--paper);
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .bleed-image::after {
+    box-shadow: inset 0 0 36px 28px var(--paper);
+  }
 }

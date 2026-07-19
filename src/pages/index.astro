@@ -55,9 +55,9 @@ const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slic
 {heroSlide ? (
   <div class="hero-wrap">
     <div class="hero-card">
-      <div class="frame">
+      <div class="frame bleed-image">
         {heroSlide.cover ? (
-          <img class="bleed-image" src={heroSlide.cover} alt="" />
+          <img src={heroSlide.cover} alt="" />
         ) : (
           <div class="frame-placeholder ui">صورة</div>
         )}

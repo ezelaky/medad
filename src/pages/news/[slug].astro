@@ -37,7 +37,7 @@ const others = (await client.fetch(queries.articles))
 
   {entry.coverImage && (
     <div class="article-cover">
-      <div class="frame"><img class="bleed-image" src={imageUrl(entry.coverImage, 1200)} alt="" /></div>
+      <div class="frame bleed-image"><img src={imageUrl(entry.coverImage, 1200)} alt="" /></div>
     </div>
   )}
 
