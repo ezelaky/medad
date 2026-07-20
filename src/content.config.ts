@@ -52,6 +52,7 @@ const longRead = defineCollection({
 const bestsellerEntry = defineCollection({
   loader: file('./src/content/bestsellerEntry.json'),
   schema: z.object({
+    listPublishedDate: z.coerce.date(),
     rank: z.number(),
     titleOriginal: z.string(),
     titleArabic: z.string().optional(),

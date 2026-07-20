@@ -66,6 +66,16 @@ async function fetchOverview() {
 }
 
 function extractEntries(overview) {
+  // Same published_date on every entry in this run — it's what distinguishes
+  // one week's batch of 15 from the next in the Studio (see listPublishedDate
+  // in bestsellerEntry.ts). NYT's docs put new lists live "Wednesday around
+  // 7pm ET"; the workflow's cron is scheduled well after that, so this is
+  // always that week's just-published date, not a stale one.
+  const listPublishedDate = overview.results.published_date;
+  if (!listPublishedDate) {
+    throw new Error('NYT overview response is missing results.published_date — cannot label this batch.');
+  }
+
   const entries = [];
   for (const [encoded, listCategory] of Object.entries(TARGET_LISTS)) {
     const list = overview.results.lists.find((l) => l.list_name_encoded === encoded);
@@ -75,6 +85,7 @@ function extractEntries(overview) {
     for (const b of list.books.slice(0, 5)) {
       entries.push({
         listCategory,
+        listPublishedDate,
         rank: b.rank,
         titleOriginal: b.title,
         author: b.author,
@@ -102,6 +113,7 @@ async function createDraft(entry) {
   return client.create({
     _id: `drafts.${randomUUID()}`,
     _type: 'bestsellerEntry',
+    listPublishedDate: entry.listPublishedDate,
     rank: entry.rank,
     titleOriginal: entry.titleOriginal,
     author: entry.author,

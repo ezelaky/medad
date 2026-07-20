@@ -10,7 +10,19 @@ export const structure: StructureResolver = (S) =>
       S.documentTypeListItem('article').title('أخبار الكتب'),
       S.documentTypeListItem('interview').title('حوارات'),
       S.documentTypeListItem('longRead').title('ملفات'),
-      S.documentTypeListItem('bestsellerEntry').title('الأكثر مبيعًا'),
+      // Default-sorted newest-batch-first (see bestsellerEntry.ts's
+      // publishedDateDesc ordering) so this week's untranslated drafts sit
+      // at the top instead of mixing in with older, already-published weeks.
+      S.documentTypeListItem('bestsellerEntry')
+        .title('الأكثر مبيعًا')
+        .child(
+          S.documentTypeList('bestsellerEntry')
+            .title('الأكثر مبيعًا')
+            .defaultOrdering([
+              { field: 'listPublishedDate', direction: 'desc' },
+              { field: 'rank', direction: 'asc' },
+            ])
+        ),
       S.documentTypeListItem('bannedBookEntry').title('الكتب الممنوعة'),
       S.divider(),
       S.listItem()

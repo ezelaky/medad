@@ -2,9 +2,12 @@ name: Sync NYT bestsellers
 
 on:
   schedule:
-    # Wednesdays 06:00 UTC — NYT typically has that week's list data live by
-    # then. Adjust if the actual publish cadence turns out to differ.
-    - cron: '0 6 * * 3'
+    # Thursdays 01:00 UTC. NYT's own docs say new lists go live "Wednesday
+    # around 7pm ET" — 23:00 UTC during EDT (daylight saving) or 00:00 UTC
+    # during EST. 01:00 UTC Thursday gives a safe buffer after either, so
+    # this always fetches that week's just-published list, not the prior
+    # week's still-current one.
+    - cron: '0 1 * * 4'
   workflow_dispatch: {}
 
 jobs:

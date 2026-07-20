@@ -12,6 +12,13 @@ export default defineType({
     },
   ],
   fields: [
+    defineField({
+      name: 'listPublishedDate',
+      title: 'تاريخ إصدار القائمة',
+      type: 'date',
+      description: 'published_date من واجهة نيويورك تايمز — يميّز كل دفعة أسبوعية عن سابقتها. يملؤه السكربت تلقائيًا',
+      validation: (r) => r.required(),
+    }),
     defineField({ name: 'rank', title: 'الترتيب', type: 'number', validation: (r) => r.required().integer().min(1) }),
     defineField({ name: 'titleOriginal', title: 'العنوان الأصلي (إنجليزي)', type: 'string', description: 'كما نُشر — يملؤه السكربت تلقائيًا', validation: (r) => r.required() }),
     defineField({ name: 'titleArabic', title: 'العنوان بالعربية', type: 'string', fieldset: 'translation' }),
@@ -50,12 +57,28 @@ export default defineType({
     }),
   ],
   orderings: [
+    {
+      title: 'الأحدث أولاً',
+      name: 'publishedDateDesc',
+      by: [{ field: 'listPublishedDate', direction: 'desc' }, { field: 'rank', direction: 'asc' }],
+    },
     { title: 'الترتيب', name: 'rankAsc', by: [{ field: 'rank', direction: 'asc' }] },
   ],
   preview: {
-    select: { title: 'titleArabic', titleOriginal: 'titleOriginal', subtitle: 'author', media: 'coverImage' },
-    prepare({ title, titleOriginal, subtitle, media }) {
-      return { title: title || `⏳ ${titleOriginal}`, subtitle, media };
+    select: {
+      title: 'titleArabic',
+      titleOriginal: 'titleOriginal',
+      author: 'author',
+      listPublishedDate: 'listPublishedDate',
+      media: 'coverImage',
+    },
+    prepare({ title, titleOriginal, author, listPublishedDate, media }) {
+      const dateLabel = listPublishedDate || 'بلا تاريخ';
+      return {
+        title: title || `⏳ ${titleOriginal}`,
+        subtitle: `${dateLabel} · ${author}`,
+        media,
+      };
     },
   },
 });
