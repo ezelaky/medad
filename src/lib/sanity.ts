@@ -54,8 +54,11 @@ export const queries = {
     "id": slug.current, title, dek, coverImage, body, author, readingTime, tags, publishedAt
   }`,
 
-  bestsellerEntries: /* groq */ `*[_type == "bestsellerEntry"] | order(rank asc){
-    rank, bookTitle, author, publisher, coverImage, trend, weeksOnList, listCategory
+  // descriptionSource is deliberately excluded — it's NYT's original English
+  // description, kept only as reference text for the translator inside the
+  // Studio, never rendered on the live site.
+  bestsellerEntries: /* groq */ `*[_type == "bestsellerEntry" && !(_id in path("drafts.**"))] | order(rank asc){
+    rank, titleOriginal, titleArabic, author, publisher, coverImage, description, trend, weeksOnList, listCategory
   }`,
 
   bannedBookEntries: /* groq */ `*[_type == "bannedBookEntry"] | order(featured desc, year asc){

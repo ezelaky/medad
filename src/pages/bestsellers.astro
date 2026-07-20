@@ -9,11 +9,17 @@ const [settings, bestsellers] = await Promise.all([
 ]);
 
 const tabs = ['روايات', 'غير روائي', 'الأكثر مبيعًا للشباب'];
+
+// TODO: placeholder wording — swap for the exact required attribution text
+// once developer.nytimes.com/attribution is confirmed (blocked from
+// automated access; see project notes). Do not ship this line to production
+// as-is.
+const nytAttribution = 'المصدر: قائمة الأكثر مبيعًا لصحيفة نيويورك تايمز (النص النهائي بانتظار التأكيد)';
 ---
 
 <BaseLayout title="الأكثر مبيعًا — مِداد" activeKey="bestsellers">
 
-<p class="page-intro ui">قائمة مِداد الأسبوعية، معتمدة على بيانات المبيعات من شبكة من المكتبات والمنصات العربية والأجنبية</p>
+<p class="page-intro ui">قائمة مِداد الأسبوعية، مبنية على قائمة الأكثر مبيعًا الصادرة عن صحيفة نيويورك تايمز</p>
 
 <div class="list-meta">
   <span>الأسبوع من <span class="week">{settings?.bestsellersWeekOf ?? '—'}</span></span>
@@ -22,15 +28,22 @@ const tabs = ['روايات', 'غير روائي', 'الأكثر مبيعًا ل
   </div>
 </div>
 
+<p class="nyt-attribution ui">
+  <a href="https://www.nytimes.com/books/best-sellers/" target="_blank" rel="noopener noreferrer">{nytAttribution}</a>
+</p>
+
 <section class="bestseller-list">
   {bestsellers.length > 0 ? bestsellers.map((entry: any) => (
     <BookCoverCard
       variant="rank"
-      coverSrc={imageUrl(entry.coverImage, 200)}
-      title={entry.bookTitle}
+      coverSrc={imageUrl(entry.coverImage, 320)}
+      title={entry.titleArabic || entry.titleOriginal}
+      titleArabic={entry.titleArabic}
+      titleOriginal={entry.titleOriginal}
       rank={entry.rank}
       author={entry.author}
       publisher={entry.publisher}
+      description={entry.description}
       trend={entry.trend}
       weeksOnList={entry.weeksOnList}
     />
@@ -54,12 +67,25 @@ const tabs = ['روايات', 'غير روائي', 'الأكثر مبيعًا ل
   }
   .tabs a.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
-  .bestseller-list { max-width: 800px; margin: 0 auto; padding: 0 6vw 10vh; }
-  .bestseller-list :global(.rank-row:first-child) { border-top: 1px solid var(--ink); }
+  .nyt-attribution {
+    max-width: 1200px; margin: 0 auto 3vh; padding: 0 6vw;
+    text-align: center; font-size: 0.78rem;
+  }
+  .nyt-attribution a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--line); }
+  .nyt-attribution a:hover { color: var(--crimson); border-color: var(--crimson); }
 
-  .archive-link { text-align: center; margin-top: 40px; }
+  .bestseller-list {
+    max-width: 1200px; margin: 0 auto; padding: 0 6vw 10vh;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  }
+
+  .archive-link { grid-column: 1 / -1; text-align: center; margin-top: 20px; }
   .archive-link a { font-family: 'IBM Plex Sans Arabic', sans-serif; color: var(--ink-soft); font-size: 0.85rem; text-decoration: none; border-bottom: 1px solid var(--line); }
   .archive-link a:hover { color: var(--crimson); border-color: var(--crimson); }
+
+  @media (max-width: 900px) {
+    .bestseller-list { grid-template-columns: 1fr; }
+  }
 
   @media (max-width: 700px) {
     .list-meta { flex-direction: column; gap: 14px; }
