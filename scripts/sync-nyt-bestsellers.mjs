@@ -26,6 +26,9 @@
 
 import { createClient } from '@sanity/client';
 import { randomUUID } from 'node:crypto';
+import { writeFileSync } from 'node:fs';
+
+const TRANSLATION_EXPORT_PATH = process.env.TRANSLATION_EXPORT_PATH || 'bestsellers-translation.md';
 
 const NYT_API_KEY = requireEnv('NYT_API_KEY');
 const SANITY_API_TOKEN = requireEnv('SANITY_API_TOKEN');
@@ -100,6 +103,49 @@ function extractEntries(overview) {
   return entries;
 }
 
+const TREND_LABEL = { new: 'جديد', up: 'صاعد ↑', down: 'هابط ↓', same: 'ثابت –' };
+
+// One file, all 15 entries, grouped by category — the single document a
+// translator works from. Each entry carries everything already known
+// (English title, author, publisher, weeks/trend, NYT's English
+// description) plus two clearly-labeled blank lines for the two fields the
+// script deliberately leaves empty in Sanity: titleArabic and description.
+// Matching an entry back to its Sanity draft is by category + rank, which
+// is why both are repeated here exactly as stored.
+function buildTranslationDoc(entries) {
+  const date = entries[0]?.listPublishedDate ?? '';
+  const lines = [`# قائمة الأكثر مبيعًا — نيويورك تايمز — ${date}`, ''];
+
+  const byCategory = new Map();
+  for (const entry of entries) {
+    if (!byCategory.has(entry.listCategory)) byCategory.set(entry.listCategory, []);
+    byCategory.get(entry.listCategory).push(entry);
+  }
+
+  for (const [category, categoryEntries] of byCategory) {
+    lines.push(`## ${category}`, '');
+    for (const entry of categoryEntries.sort((a, b) => a.rank - b.rank)) {
+      lines.push(
+        `### #${entry.rank} — ${entry.titleOriginal}`,
+        `- **Author:** ${entry.author}`,
+        `- **Publisher:** ${entry.publisher}`,
+        `- **Weeks on list:** ${entry.weeksOnList} (trend: ${TREND_LABEL[entry.trend]})`,
+        `- **NYT description:** ${entry.descriptionSource}`,
+        '',
+        '**العنوان بالعربية:**',
+        '',
+        '**الوصف بالعربية:**',
+        '',
+        '',
+        '---',
+        ''
+      );
+    }
+  }
+
+  return lines.join('\n');
+}
+
 async function uploadCover(url, label) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`cover fetch failed (${res.status}) for ${label}: ${url}`);
@@ -130,6 +176,9 @@ async function run() {
   const overview = await fetchOverview();
   const entries = extractEntries(overview);
   console.log(`Fetched ${entries.length} entries across ${Object.keys(TARGET_LISTS).length} lists.`);
+
+  writeFileSync(TRANSLATION_EXPORT_PATH, buildTranslationDoc(entries));
+  console.log(`Wrote translation export to ${TRANSLATION_EXPORT_PATH}`);
 
   const failures = [];
   for (const entry of entries) {

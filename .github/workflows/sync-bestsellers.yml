@@ -32,3 +32,11 @@ jobs:
           NYT_API_KEY: ${{ secrets.NYTIMES }}
           SANITY_API_TOKEN: ${{ secrets.SANTY }}
         run: npm run sync:bestsellers
+
+      - name: Upload translation-ready export
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bestsellers-translation
+          path: bestsellers-translation.md
+          if-no-files-found: warn
