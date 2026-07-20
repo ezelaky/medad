@@ -12,7 +12,8 @@
     "astro": "astro",
     "sanity:login": "sanity login",
     "sanity:init": "sanity init --env .env",
-    "sanity:deploy-studio": "sanity deploy"
+    "sanity:deploy-studio": "sanity deploy",
+    "sync:bestsellers": "node scripts/sync-nyt-bestsellers.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.3",
