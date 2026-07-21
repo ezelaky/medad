@@ -16,13 +16,19 @@
 //      draft is never published automatically.
 //   4. Stamps enrichedAt on the inbox item to confirm this ran.
 //
-// If the fetch/extraction fails, no draft is created — instead the inbox
-// item gets enrichmentError: true so the editor can see it needs manual
-// attention (open sourceUrl themselves) instead of the failure being
-// silent. Unlike Phase 1 (many independent sources, one bad one is
-// expected occasionally), this run *is* the one item it was asked to
-// process, so a failure here means the run's whole purpose failed —
-// it exits non-zero.
+// If sourceUrl responds but blocks the fetch (403/401/etc — many sites
+// reject Node's default fetch User-Agent, which is why a browser-like one
+// is sent below), the run does NOT fail: it creates the draft anyway from
+// whatever the inbox item already has (title, sourceUrl, sourceName,
+// excerpt, originalPublishedAt), using the RSS excerpt as originalContent
+// and flagging fetchBlocked: true so the editor knows to open sourceUrl
+// themselves. A partial draft is more useful than no draft.
+//
+// A harder failure — the document not found, an unknown section, or the
+// fetch throwing outright (DNS failure, timeout, etc., as opposed to a
+// real-but-unhappy HTTP response) — still sets enrichmentError: true and
+// exits non-zero, since those aren't something a partial draft can paper
+// over.
 //
 // Required env vars: SANITY_API_TOKEN, DOCUMENT_ID.
 // Optional (defaults match the project's public Sanity config):
@@ -118,11 +124,27 @@ async function run() {
   // default, which already caused one workflow_dispatch run to sit for
   // several minutes fetching six feeds sequentially — see phase1-triage.mjs).
   // A source site that hangs here would otherwise block this run
-  // indefinitely, so this needs its own explicit bound.
-  const res = await fetch(inboxItem.sourceUrl, { signal: AbortSignal.timeout(20000) });
-  if (!res.ok) throw new Error(`sourceUrl fetch failed: ${res.status} ${res.statusText}`);
-  const html = await res.text();
-  const originalContent = extractArticleText(html);
+  // indefinitely, so this needs its own explicit bound. The User-Agent is
+  // set because several sites block Node's default fetch UA outright but
+  // allow a browser-like one.
+  const res = await fetch(inboxItem.sourceUrl, {
+    signal: AbortSignal.timeout(20000),
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    },
+  });
+
+  let originalContent;
+  let fetchBlocked = false;
+  if (res.ok) {
+    const html = await res.text();
+    originalContent = extractArticleText(html);
+  } else {
+    console.warn(`Content fetch blocked for ${inboxItem.sourceName} (${res.status} ${res.statusText}), creating draft with excerpt only`);
+    originalContent = inboxItem.excerpt || '';
+    fetchBlocked = true;
+  }
 
   const draft = await client.create({
     _id: `drafts.${randomUUID()}`,
@@ -132,6 +154,7 @@ async function run() {
     sourceUrl: inboxItem.sourceUrl,
     originalPublishedAt: inboxItem.originalPublishedAt,
     originalContent,
+    fetchBlocked,
     // All Arabic-facing fields (title, dek/excerpt, body, slug, etc.) are
     // intentionally left unset — the editor fills those in from
     // originalContent before publishing.
@@ -139,7 +162,7 @@ async function run() {
 
   await client.patch(DOCUMENT_ID).set({ enrichedAt: new Date().toISOString() }).commit();
 
-  console.log(`Created draft ${draft._id}`);
+  console.log(`Created draft ${draft._id}${fetchBlocked ? ' (fetchBlocked — excerpt only)' : ''}`);
 }
 
 run()

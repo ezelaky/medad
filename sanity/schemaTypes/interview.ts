@@ -34,6 +34,16 @@ export default defineType({
       fieldset: 'sourceReference',
       readOnly: true,
       rows: 10,
+      description: 'قد يكون المقتطف من RSS فقط إذا تعذّر جلب النص الكامل — راجع fetchBlocked',
+    }),
+    defineField({
+      name: 'fetchBlocked',
+      title: 'تعذّر جلب النص الكامل',
+      type: 'boolean',
+      fieldset: 'sourceReference',
+      readOnly: true,
+      initialValue: false,
+      description: 'إذا كانت مفعّلة، فإن originalContent أعلاه هو مقتطف RSS فقط، وليس نص المقال الكامل — افتح رابط المصدر يدويًا',
     }),
   ],
   preview: {
