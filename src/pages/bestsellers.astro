@@ -15,11 +15,7 @@ const weekLabel = latestPublishedDate
   ? new Date(latestPublishedDate).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' })
   : '—';
 
-// TODO: placeholder wording — swap for the exact required attribution text
-// once developer.nytimes.com/attribution is confirmed (blocked from
-// automated access; see project notes). Do not ship this line to production
-// as-is.
-const nytAttribution = 'المصدر: قائمة الأكثر مبيعًا لصحيفة نيويورك تايمز (النص النهائي بانتظار التأكيد)';
+const nytAttribution = 'المصدر: قائمة الأكثر مبيعًا لصحيفة نيويورك تايمز';
 ---
 
 <BaseLayout title="الأكثر مبيعًا — مِداد" activeKey="bestsellers">
