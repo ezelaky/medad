@@ -15,6 +15,7 @@ interface Props {
   description?: string;
   trend?: 'new' | 'up' | 'down' | 'same';
   weeksOnList?: string;
+  category?: string;
   // browse variant (banned-books archive grid)
   tagText?: string;
 }
@@ -24,7 +25,7 @@ const arabicDigits = new Intl.NumberFormat('ar-EG-u-nu-arab');
 
 const {
   href, coverSrc, coverAlt = '', title, variant,
-  rank, titleArabic, titleOriginal, author, publisher, description, trend, weeksOnList,
+  rank, titleArabic, titleOriginal, author, publisher, description, trend, weeksOnList, category,
   tagText,
 } = Astro.props;
 
@@ -32,7 +33,7 @@ const RankTag = href ? 'a' : 'div';
 ---
 
 {variant === 'rank' && (
-  <RankTag {...(href ? { href } : {})} class="rank-card">
+  <RankTag {...(href ? { href } : {})} class="rank-card" data-category={category}>
     <div class="rank-cover ui">
       {coverSrc ? <img src={coverSrc} alt={coverAlt} /> : title}
       <div class="rank-badge">
@@ -68,6 +69,10 @@ const RankTag = href ? 'a' : 'div';
     display: flex; gap: 16px; align-items: flex-start;
     background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 14px;
   }
+  /* the `display: flex` above wins over the UA's [hidden]{display:none} by
+     cascade origin, not specificity — needs an explicit override so the
+     bestsellers page's category filter script can actually hide cards */
+  .rank-card[hidden] { display: none; }
   .rank-cover {
     position: relative; flex: 0 0 150px; aspect-ratio: 3 / 4.2; border-radius: 2px; overflow: hidden;
     background: linear-gradient(160deg, #e7e0d1, #d8cfba);

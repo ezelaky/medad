@@ -58,7 +58,7 @@ export const queries = {
   // description, kept only as reference text for the translator inside the
   // Studio, never rendered on the live site.
   bestsellerEntries: /* groq */ `*[_type == "bestsellerEntry" && !(_id in path("drafts.**"))] | order(rank asc){
-    rank, titleOriginal, titleArabic, author, publisher, coverImage, description, trend, weeksOnList, listCategory
+    rank, titleOriginal, titleArabic, author, publisher, coverImage, description, trend, weeksOnList, listCategory, listPublishedDate
   }`,
 
   bannedBookEntries: /* groq */ `*[_type == "bannedBookEntry"] | order(featured desc, year asc){
