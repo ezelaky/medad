@@ -1,0 +1,56 @@
+# ─────────────────────────────────────────────────────────────────────────
+# MANUAL SETUP REQUIRED — this workflow only runs if a Sanity webhook is
+# configured to dispatch it. Nothing in this repo can create that webhook
+# for you; it has to be done once, by hand, in Sanity's own dashboard.
+#
+# 1. Go to https://www.sanity.io/manage -> this project -> API -> Webhooks
+# 2. Create a webhook:
+#      Name:          Inbox Item Approved
+#      URL:           https://api.github.com/repos/ezelaky/medad/dispatches
+#      Trigger on:    Update
+#      Filter:        _type == "contentInboxItem" && status == "approved"
+#      HTTP method:   POST
+#      HTTP headers:
+#        Authorization: Bearer <GitHub PAT with repo scope>
+#        Accept:        application/vnd.github.v3+json
+#      Payload:
+#        {
+#          "event_type": "inbox-item-approved",
+#          "client_payload": { "document_id": "{{_id}}" }
+#        }
+#
+# 3. The GitHub PAT goes in the webhook's own "Secret"/header value in
+#    Sanity's dashboard — NOT committed anywhere in this repo. Sanity
+#    stores it encrypted alongside the webhook config, same trust
+#    boundary as a GitHub Actions secret.
+#
+# Why this is safe to fire the moment `status` flips to 'approved': see
+# sanity/schemaTypes/contentInboxItem.ts's `liveEdit: true` comment — that
+# type has no draft/publish split, so the webhook's "Update" trigger fires
+# on the actual status change itself, not on some later "Publish" click
+# the editor might forget.
+# ─────────────────────────────────────────────────────────────────────────
+
+name: Phase 2 - Enrich approved inbox item
+
+on:
+  repository_dispatch:
+    types: [inbox-item-approved]
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - run: npm ci
+
+      - name: Extract source content and create a draft
+        env:
+          SANITY_API_TOKEN: ${{ secrets.SANTY }}
+          DOCUMENT_ID: ${{ github.event.client_payload.document_id }}
+        run: npm run enrich:item

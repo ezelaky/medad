@@ -7,6 +7,22 @@ export const structure: StructureResolver = (S) =>
   S.list()
     .title('المحتوى')
     .items([
+      // Triage queue for Phase 1's RSS pull — pinned first and separated by
+      // a divider so it reads as a distinct workflow, not just another
+      // content list. Only shows 'pending' items; once an editor sets
+      // status to 'approved' or 'dismissed' it drops out of this view on
+      // its own (see contentInboxItem.ts's liveEdit note for why status
+      // changes apply immediately rather than needing a separate Publish).
+      S.listItem()
+        .title('صندوق الوارد')
+        .id('contentInbox')
+        .child(
+          S.documentTypeList('contentInboxItem')
+            .title('صندوق الوارد')
+            .filter('status == "pending"')
+            .defaultOrdering([{ field: 'fetchedAt', direction: 'desc' }])
+        ),
+      S.divider(),
       S.documentTypeListItem('article').title('أخبار الكتب'),
       S.documentTypeListItem('interview').title('حوارات'),
       S.documentTypeListItem('longRead').title('ملفات'),

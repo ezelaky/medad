@@ -4,6 +4,14 @@ export default defineType({
   name: 'interview',
   title: 'حوار',
   type: 'document',
+  fieldsets: [
+    {
+      name: 'sourceReference',
+      title: 'مرجع المصدر (لمسودات صندوق الوارد فقط)',
+      description: 'تُملأ تلقائيًا بواسطة phase2-enrich عند إثراء عنصر من صندوق الوارد — مرجع للمحرر، لا تظهر في الموقع',
+      options: { collapsible: true, collapsed: true },
+    },
+  ],
   fields: [
     defineField({ name: 'title', title: 'عنوان الحوار (الاقتباس الرئيسي)', type: 'string', validation: (r) => r.required() }),
     defineField({ name: 'slug', title: 'الرابط', type: 'slug', options: { source: 'title' }, validation: (r) => r.required() }),
@@ -14,8 +22,24 @@ export default defineType({
     defineField({ name: 'body', title: 'نص الحوار', type: 'array', of: [{ type: 'block' }] }),
     defineField({ name: 'publishedAt', title: 'تاريخ النشر', type: 'datetime', validation: (r) => r.required() }),
     defineField({ name: 'featured', title: 'حوار رئيسي', type: 'boolean', initialValue: false }),
+
+    defineField({ name: 'titleOriginal', title: 'العنوان الأصلي (إنجليزي)', type: 'string', fieldset: 'sourceReference', readOnly: true }),
+    defineField({ name: 'sourceName', title: 'اسم المصدر', type: 'string', fieldset: 'sourceReference', readOnly: true }),
+    defineField({ name: 'sourceUrl', title: 'رابط المقال الأصلي', type: 'string', fieldset: 'sourceReference', readOnly: true }),
+    defineField({ name: 'originalPublishedAt', title: 'تاريخ النشر الأصلي', type: 'datetime', fieldset: 'sourceReference', readOnly: true }),
+    defineField({
+      name: 'originalContent',
+      title: 'النص الأصلي (مرجع للترجمة)',
+      type: 'text',
+      fieldset: 'sourceReference',
+      readOnly: true,
+      rows: 10,
+    }),
   ],
   preview: {
-    select: { title: 'title', subtitle: 'guestRole', media: 'portraitImage' },
+    select: { title: 'title', titleOriginal: 'titleOriginal', subtitle: 'guestRole', media: 'portraitImage' },
+    prepare({ title, titleOriginal, subtitle, media }) {
+      return { title: title || (titleOriginal ? `⏳ ${titleOriginal}` : 'بلا عنوان'), subtitle, media };
+    },
   },
 });

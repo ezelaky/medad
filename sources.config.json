@@ -1,0 +1,52 @@
+{
+  "sections": {
+    "longreads": {
+      "sanity_type": "longRead",
+      "label": "ملفات",
+      "daily_quota": 3
+    },
+    "interviews": {
+      "sanity_type": "interview",
+      "label": "حوارات",
+      "daily_quota": 3
+    }
+  },
+  "sources": [
+    {
+      "name": "Literary Hub",
+      "feed": "https://lithub.com/feed/",
+      "section": "longreads",
+      "active": true
+    },
+    {
+      "name": "LARB",
+      "feed": "https://lareviewofbooks.org/feed/",
+      "section": "longreads",
+      "active": true
+    },
+    {
+      "name": "Public Domain Review",
+      "feed": "https://publicdomainreview.org/feed/",
+      "section": "longreads",
+      "active": true
+    },
+    {
+      "name": "Five Books",
+      "feed": "https://fivebooks.com/feed/",
+      "section": "interviews",
+      "active": true
+    },
+    {
+      "name": "Paris Review",
+      "feed": "https://www.theparisreview.org/blog/feed/",
+      "section": "interviews",
+      "active": true
+    },
+    {
+      "name": "LARB Interviews",
+      "feed": "https://lareviewofbooks.org/articles/interviews/feed/",
+      "section": "interviews",
+      "active": true
+    }
+  ]
+}

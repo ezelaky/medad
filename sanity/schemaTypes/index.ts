@@ -5,5 +5,6 @@ import bestsellerEntry from './bestsellerEntry';
 import bannedBookEntry from './bannedBookEntry';
 import siteSettings from './siteSettings';
 import homepage from './homepage';
+import contentInboxItem from './contentInboxItem';
 
-export const schemaTypes = [article, interview, longRead, bestsellerEntry, bannedBookEntry, siteSettings, homepage];
+export const schemaTypes = [article, interview, longRead, bestsellerEntry, bannedBookEntry, siteSettings, homepage, contentInboxItem];

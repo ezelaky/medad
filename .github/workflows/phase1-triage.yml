@@ -1,0 +1,25 @@
+name: Phase 1 - Content triage
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - run: npm ci
+
+      - name: Fetch RSS sources and create inbox items
+        # Same secret name as sync-bestsellers.yml — see that workflow's
+        # comment; the repo secret is actually named SANTY.
+        env:
+          SANITY_API_TOKEN: ${{ secrets.SANTY }}
+        run: npm run triage:sources

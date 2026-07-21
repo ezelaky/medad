@@ -13,7 +13,9 @@
     "sanity:login": "sanity login",
     "sanity:init": "sanity init --env .env",
     "sanity:deploy-studio": "sanity deploy",
-    "sync:bestsellers": "node scripts/sync-nyt-bestsellers.mjs"
+    "sync:bestsellers": "node scripts/sync-nyt-bestsellers.mjs",
+    "triage:sources": "node scripts/phase1-triage.mjs",
+    "enrich:item": "node scripts/phase2-enrich.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.3",
@@ -24,8 +26,10 @@
     "@sanity/image-url": "^2.1.1",
     "@sanity/vision": "^6.5.0",
     "astro": "^7.1.1",
+    "node-html-parser": "^6.1.13",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "rss-parser": "^3.13.0",
     "sanity": "^6.5.0",
     "styled-components": "^6.4.3"
   },
