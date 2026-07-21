@@ -123,12 +123,18 @@ async function run() {
   console.log(`Created draft ${draft._id}`);
 }
 
-run().catch(async (err) => {
-  console.error('Enrichment failed:', err.message);
-  try {
-    await client.patch(DOCUMENT_ID).set({ enrichmentError: true }).commit();
-  } catch (patchErr) {
-    console.error(`Additionally failed to flag enrichmentError on ${DOCUMENT_ID}: ${patchErr.message}`);
-  }
-  process.exitCode = 1;
-});
+run()
+  .catch(async (err) => {
+    console.error('Enrichment failed:', err.message);
+    try {
+      await client.patch(DOCUMENT_ID).set({ enrichmentError: true }).commit();
+    } catch (patchErr) {
+      console.error(`Additionally failed to flag enrichmentError on ${DOCUMENT_ID}: ${patchErr.message}`);
+    }
+    process.exitCode = 1;
+  })
+  .finally(() => {
+    // Same dangling-keep-alive-socket issue observed live in
+    // phase1-triage.mjs — see its matching comment. Same fix here.
+    process.exit(process.exitCode ?? 0);
+  });

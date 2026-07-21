@@ -192,7 +192,17 @@ async function run() {
   }
 }
 
-run().catch((err) => {
-  console.error('Triage failed:', err.message);
-  process.exitCode = 1;
-});
+run()
+  .catch((err) => {
+    console.error('Triage failed:', err.message);
+    process.exitCode = 1;
+  })
+  .finally(() => {
+    // Observed live: the script's own work finished in ~9s (logged, all 6
+    // docs created), but the process then sat idle for 4+ minutes until
+    // manually cancelled — some dependency (rss-parser's HTTP client and/or
+    // @sanity/client's) holds a keep-alive socket open, so the event loop
+    // never drains on its own. Forcing exit once we know we're actually
+    // done avoids burning the full job timeout on every scheduled run.
+    process.exit(process.exitCode ?? 0);
+  });
