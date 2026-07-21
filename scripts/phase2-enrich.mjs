@@ -60,18 +60,37 @@ function loadConfig() {
   return JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
 }
 
+const CONTENT_BLOCKS_SELECTOR = 'h1, h2, h3, h4, h5, h6, p';
+
+function countContentBlocks(el) {
+  return el.querySelectorAll(CONTENT_BLOCKS_SELECTOR).length;
+}
+
+// Verified live against lithub.com: `[class*="content"]` alone matched 10
+// different elements on the page (title-bar-wrapper.top-content,
+// site-content, main-content-well, ...) — plain querySelector() just
+// returns the first one in document order, which turned out to be a
+// zero-paragraph header widget, not the 24-paragraph article body several
+// levels deeper. So within each selector (tried in the given priority
+// order), this picks whichever match actually has the most content
+// blocks, instead of trusting DOM order to mean anything.
 function extractArticleText(html) {
   const root = parseHtml(html);
   root.querySelectorAll(NOISE_SELECTORS).forEach((el) => el.remove());
 
   let contentEl = null;
   for (const selector of CONTENT_SELECTORS) {
-    contentEl = root.querySelector(selector);
-    if (contentEl) break;
+    const candidates = root.querySelectorAll(selector);
+    if (candidates.length === 0) continue;
+    const best = candidates.reduce((a, b) => (countContentBlocks(b) > countContentBlocks(a) ? b : a));
+    if (countContentBlocks(best) > 0) {
+      contentEl = best;
+      break;
+    }
   }
   if (!contentEl) contentEl = root;
 
-  const blocks = contentEl.querySelectorAll('h1, h2, h3, h4, h5, h6, p');
+  const blocks = contentEl.querySelectorAll(CONTENT_BLOCKS_SELECTOR);
   const text = blocks
     .map((el) => el.text.trim())
     .filter(Boolean)
