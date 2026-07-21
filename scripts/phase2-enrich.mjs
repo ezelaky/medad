@@ -95,7 +95,12 @@ async function run() {
 
   console.log(`Enriching "${inboxItem.title}" (${inboxItem.sourceName}) -> ${sectionConfig.sanity_type} draft`);
 
-  const res = await fetch(inboxItem.sourceUrl);
+  // Node's fetch has no default timeout at all (unlike rss-parser's 60s
+  // default, which already caused one workflow_dispatch run to sit for
+  // several minutes fetching six feeds sequentially — see phase1-triage.mjs).
+  // A source site that hangs here would otherwise block this run
+  // indefinitely, so this needs its own explicit bound.
+  const res = await fetch(inboxItem.sourceUrl, { signal: AbortSignal.timeout(20000) });
   if (!res.ok) throw new Error(`sourceUrl fetch failed: ${res.status} ${res.statusText}`);
   const html = await res.text();
   const originalContent = extractArticleText(html);

@@ -39,7 +39,14 @@ const dataset = process.env.SANITY_DATASET || 'production';
 const apiVersion = process.env.SANITY_API_VERSION || '2026-01-01';
 
 const client = createClient({ projectId, dataset, apiVersion, token: SANITY_API_TOKEN, useCdn: false });
-const rssParser = new Parser();
+// rss-parser's own default timeout is 60s *per feed*; combined with
+// fetching sources one at a time, six sources could take up to six
+// minutes in the worst case (observed live: a workflow_dispatch run was
+// still stuck in this step past three minutes). Tightened here, and
+// fetchAllSources below now runs every source concurrently instead of
+// sequentially, so the real worst case is ~20s (the slowest single feed)
+// rather than a multiple of it.
+const rssParser = new Parser({ timeout: 20000 });
 
 function loadConfig() {
   const raw = readFileSync(CONFIG_PATH, 'utf8');
@@ -75,18 +82,20 @@ async function fetchSourceItems(source) {
 }
 
 async function fetchAllSources(sources) {
+  const results = await Promise.allSettled(sources.map((source) => fetchSourceItems(source)));
+
   const allItems = [];
   const feedErrors = [];
-  for (const source of sources) {
-    try {
-      const items = await fetchSourceItems(source);
-      console.log(`  ${source.name}: ${items.length} items in feed`);
-      allItems.push(...items);
-    } catch (err) {
-      console.error(`  ✗ ${source.name} (${source.feed}) failed to fetch/parse: ${err.message}`);
-      feedErrors.push({ source, error: err });
+  results.forEach((result, i) => {
+    const source = sources[i];
+    if (result.status === 'fulfilled') {
+      console.log(`  ${source.name}: ${result.value.length} items in feed`);
+      allItems.push(...result.value);
+    } else {
+      console.error(`  ✗ ${source.name} (${source.feed}) failed to fetch/parse: ${result.reason.message}`);
+      feedErrors.push({ source, error: result.reason });
     }
-  }
+  });
   return { allItems, feedErrors };
 }
 
