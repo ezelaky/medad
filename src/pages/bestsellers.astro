@@ -24,6 +24,10 @@ const nytAttribution = 'المصدر: قائمة الأكثر مبيعًا لص�
 
 <BaseLayout title="الأكثر مبيعًا — مِداد" activeKey="bestsellers">
 
+<p class="nyt-attribution ui">
+  <a href="https://www.nytimes.com/books/best-sellers/" target="_blank" rel="noopener noreferrer">{nytAttribution}</a>
+</p>
+
 <p class="page-intro ui">قائمة مِداد الأسبوعية، مبنية على قائمة الأكثر مبيعًا الصادرة عن صحيفة نيويورك تايمز</p>
 
 <div class="list-meta">
@@ -32,10 +36,6 @@ const nytAttribution = 'المصدر: قائمة الأكثر مبيعًا لص�
     {tabs.map((tab, i) => <a href="#" data-category={tab} class={i === 0 ? 'active' : ''}>{tab}</a>)}
   </div>
 </div>
-
-<p class="nyt-attribution ui">
-  <a href="https://www.nytimes.com/books/best-sellers/" target="_blank" rel="noopener noreferrer">{nytAttribution}</a>
-</p>
 
 <section class="bestseller-list" id="bestsellerList">
   {bestsellers.length > 0 ? bestsellers.map((entry: any) => (
@@ -71,13 +71,18 @@ const nytAttribution = 'المصدر: قائمة الأكثر مبيعًا لص�
   const emptyMsg = document.getElementById('emptyCategoryMsg');
 
   function applyFilter(category: string) {
-    let visibleCount = 0;
+    const visible: HTMLElement[] = [];
     for (const card of cards) {
       const matches = card.dataset.category === category;
       card.hidden = !matches;
-      if (matches) visibleCount++;
+      card.classList.remove('lone-last');
+      if (matches) visible.push(card);
     }
-    if (emptyMsg) emptyMsg.hidden = visibleCount > 0;
+    // Odd count in the 2-col grid leaves a single card on the last row —
+    // center it explicitly instead of leaving it flush to whichever side
+    // grid auto-placement happens to put it on.
+    if (visible.length % 2 === 1) visible[visible.length - 1].classList.add('lone-last');
+    if (emptyMsg) emptyMsg.hidden = visible.length > 0;
   }
 
   tabsEl?.addEventListener('click', (e) => {
@@ -109,7 +114,7 @@ const nytAttribution = 'المصدر: قائمة الأكثر مبيعًا لص�
   .tabs a.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
   .nyt-attribution {
-    max-width: 1200px; margin: 0 auto 3vh; padding: 0 6vw;
+    max-width: 1200px; margin: 0 auto; padding: 4vh 6vw 2vh;
     text-align: center; font-size: 0.78rem;
   }
   .nyt-attribution a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--line); }
@@ -117,7 +122,15 @@ const nytAttribution = 'المصدر: قائمة الأكثر مبيعًا لص�
 
   .bestseller-list {
     max-width: 1200px; margin: 0 auto; padding: 0 6vw 10vh;
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+  }
+
+  /* odd count in the 2-col grid -> center the trailing lone card instead of
+     leaving it flush to whichever side grid auto-placement picks */
+  .bestseller-list :global(.rank-card.lone-last) {
+    grid-column: 1 / -1;
+    max-width: calc(50% - 10px);
+    margin-inline: auto;
   }
 
   .empty-category { grid-column: 1 / -1; text-align: center; color: var(--ink-soft); }
@@ -128,6 +141,7 @@ const nytAttribution = 'المصدر: قائمة الأكثر مبيعًا لص�
 
   @media (max-width: 900px) {
     .bestseller-list { grid-template-columns: 1fr; }
+    .bestseller-list :global(.rank-card.lone-last) { max-width: none; margin-inline: 0; }
   }
 
   @media (max-width: 700px) {

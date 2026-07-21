@@ -74,7 +74,11 @@ const RankTag = href ? 'a' : 'div';
      bestsellers page's category filter script can actually hide cards */
   .rank-card[hidden] { display: none; }
   .rank-cover {
-    position: relative; flex: 0 0 150px; aspect-ratio: 3 / 4.2; border-radius: 2px; overflow: hidden;
+    /* percentage flex-basis (clamped) so the cover scales with the card
+       instead of staying pinned at a fixed px width as the grid goes from
+       3 to 2 columns — floor matches the old fixed size, ceiling keeps it
+       from ballooning on very wide 2-col cards */
+    position: relative; flex: 0 0 clamp(150px, 38%, 240px); aspect-ratio: 3 / 4.2; border-radius: 2px; overflow: hidden;
     background: linear-gradient(160deg, #e7e0d1, #d8cfba);
     display: flex; align-items: center; justify-content: center;
     font-size: 0.6rem; color: var(--ink-soft); text-align: center;
@@ -95,16 +99,19 @@ const RankTag = href ? 'a' : 'div';
   .badge-trend.same { color: var(--ink-soft); }
   .badge-weeks { font-size: 0.6rem; color: var(--ink-soft); }
 
-  .rank-info { flex: 1; min-width: 0; }
+  .rank-info { flex: 1; min-width: 0; text-align: right; }
   .rank-info .title-ar { font-size: 1.05rem; font-weight: 700; margin: 0 0 2px; }
   .rank-info .title-ar .pending { font-size: 0.75rem; font-weight: 500; color: var(--brass); }
   .rank-info .title-en {
-    margin: 0 0 8px; font-size: 0.82rem; font-style: italic; color: var(--ink-soft); text-align: left;
+    /* dir="ltr" (set in markup) keeps the English text itself reading
+       left-to-right internally — text-align: right only anchors the block
+       to the card's right edge, matching the Arabic text beside it */
+    margin: 0 0 8px; font-size: 0.82rem; font-style: italic; color: var(--ink-soft); text-align: right;
   }
   .rank-info .byline { margin: 0 0 6px; font-size: 0.8rem; color: var(--ink-soft); }
   .rank-info .desc {
     margin: 0; font-size: 0.8rem; color: var(--ink-soft); line-height: 1.6;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
   }
 
   /* browse variant — banned-books/index.astro .browse-card */
