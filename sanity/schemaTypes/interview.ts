@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity';
+import { pullQuote } from './blocks/pullQuote';
 
 export default defineType({
   name: 'interview',
@@ -22,7 +23,7 @@ export default defineType({
     defineField({ name: 'guestRole', title: 'صفة الضيف', type: 'string', description: 'مثال: ناشر، روائية، مترجم', validation: (r) => r.required() }),
     defineField({ name: 'portraitImage', title: 'صورة الضيف', type: 'image', options: { hotspot: true } }),
     defineField({ name: 'excerpt', title: 'مقتطف', type: 'text', rows: 3, validation: (r) => r.required() }),
-    defineField({ name: 'body', title: 'نص الحوار', type: 'array', of: [{ type: 'block' }] }),
+    defineField({ name: 'body', title: 'نص الحوار', type: 'array', of: [{ type: 'block' }, pullQuote] }),
     defineField({ name: 'publishedAt', title: 'تاريخ النشر', type: 'datetime', validation: (r) => r.required() }),
     defineField({ name: 'featured', title: 'حوار رئيسي', type: 'boolean', initialValue: false }),
 

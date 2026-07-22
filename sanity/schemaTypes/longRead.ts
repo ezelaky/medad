@@ -1,18 +1,10 @@
 import { defineField, defineType } from 'sanity';
+import { pullQuote } from './blocks/pullQuote';
 
-// Custom Portable Text blocks matching article.html's .pull-quote and
-// .inline-figure patterns — rendered by the ptComponents map in src/lib/sanity.ts
-const pullQuote = {
-  name: 'pullQuote',
-  title: 'اقتباس بارز',
-  type: 'object',
-  fields: [
-    { name: 'quote', title: 'نص الاقتباس', type: 'text', rows: 3 },
-    { name: 'attribution', title: 'المصدر', type: 'string' },
-  ],
-  preview: { select: { title: 'quote' } },
-};
-
+// Custom Portable Text block matching article.html's .inline-figure
+// pattern — rendered by the ptComponents map in src/lib/portableText.ts.
+// (pullQuote itself now lives in ./blocks/pullQuote.ts, shared with
+// interview and bannedBookEntry.)
 const inlineFigure = {
   name: 'inlineFigure',
   title: 'صورة داخل النص',

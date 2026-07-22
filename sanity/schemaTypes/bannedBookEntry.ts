@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity';
+import { pullQuote } from './blocks/pullQuote';
 
 export default defineType({
   name: 'bannedBookEntry',
@@ -15,6 +16,13 @@ export default defineType({
     defineField({ name: 'coverImage', title: 'صورة الغلاف', type: 'image', options: { hotspot: true } }),
     defineField({ name: 'summary', title: 'الملخص (الفقرة الظاهرة)', type: 'text', rows: 4, validation: (r) => r.required() }),
     defineField({ name: 'officialReason', title: 'السبب الرسمي للمنع (النص المُخفى)', type: 'text', rows: 3, validation: (r) => r.required() }),
+    defineField({
+      name: 'body',
+      title: 'المحتوى الموسّع',
+      type: 'array',
+      of: [{ type: 'block' }, pullQuote],
+      description: 'محتوى اختياري أطول من الملخص — ملاحظة: صفحة الكتاب الممنوع الحالية لا تعرض هذا الحقل بعد',
+    }),
     defineField({ name: 'featured', title: 'العرض الكامل في أعلى الصفحة', type: 'boolean', initialValue: false }),
   ],
   preview: {
