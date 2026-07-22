@@ -1,9 +1,11 @@
 name: Phase 1 - Content triage
 
 on:
-  schedule:
-    - cron: '0 7 * * *'
-  workflow_dispatch: {}
+  # Disabled until editorial pattern is established
+  # Re-enable by uncommenting the schedule block below
+  # schedule:
+  #   - cron: '0 7 * * *'
+  workflow_dispatch:
 
 jobs:
   triage:

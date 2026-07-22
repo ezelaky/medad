@@ -40,11 +40,17 @@
       "name": "Paris Review",
       "feed": "https://www.theparisreview.org/blog/feed/",
       "section": "interviews",
-      "active": true
+      "active": false
     },
     {
       "name": "LARB Interviews",
       "feed": "https://lareviewofbooks.org/articles/interviews/feed/",
+      "section": "interviews",
+      "active": true
+    },
+    {
+      "name": "Longreads",
+      "feed": "https://longreads.com/feed/",
       "section": "interviews",
       "active": true
     }
