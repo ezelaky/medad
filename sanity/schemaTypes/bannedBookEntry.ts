@@ -6,6 +6,9 @@ export default defineType({
   type: 'document',
   fields: [
     defineField({ name: 'bookTitle', title: 'عنوان الكتاب', type: 'string', validation: (r) => r.required() }),
+    defineField({ name: 'author', title: 'الكاتب / المحرر', type: 'string', description: 'اسم الكاتب أو المحرر كما سيظهر في المقال' }),
+    defineField({ name: 'subtitle', title: 'العنوان الفرعي الأول', type: 'string' }),
+    defineField({ name: 'subtitle2', title: 'العنوان الفرعي الثاني', type: 'string' }),
     defineField({ name: 'slug', title: 'الرابط', type: 'slug', options: { source: 'bookTitle' }, validation: (r) => r.required() }),
     defineField({ name: 'year', title: 'سنة المنع', type: 'string', validation: (r) => r.required() }),
     defineField({ name: 'country', title: 'البلد', type: 'string', validation: (r) => r.required() }),

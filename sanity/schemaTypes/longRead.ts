@@ -38,6 +38,9 @@ export default defineType({
   ],
   fields: [
     defineField({ name: 'title', title: 'العنوان', type: 'string', validation: (r) => r.required() }),
+    defineField({ name: 'author', title: 'الكاتب / المحرر', type: 'string', description: 'اسم الكاتب أو المحرر كما سيظهر في المقال', initialValue: 'فريق التحرير' }),
+    defineField({ name: 'subtitle', title: 'العنوان الفرعي الأول', type: 'string' }),
+    defineField({ name: 'subtitle2', title: 'العنوان الفرعي الثاني', type: 'string' }),
     defineField({ name: 'slug', title: 'الرابط', type: 'slug', options: { source: 'title' }, validation: (r) => r.required() }),
     defineField({ name: 'dek', title: 'العنوان الفرعي', type: 'text', rows: 2, validation: (r) => r.required() }),
     defineField({ name: 'coverImage', title: 'صورة الغلاف', type: 'image', options: { hotspot: true } }),
@@ -47,7 +50,6 @@ export default defineType({
       type: 'array',
       of: [{ type: 'block' }, pullQuote, inlineFigure],
     }),
-    defineField({ name: 'author', title: 'الكاتب', type: 'string', initialValue: 'فريق التحرير' }),
     defineField({ name: 'readingTime', title: 'مدة القراءة', type: 'string', description: 'مثال: ١٢ دقائق قراءة' }),
     defineField({ name: 'tags', title: 'وسوم', type: 'array', of: [{ type: 'string' }] }),
     defineField({ name: 'publishedAt', title: 'تاريخ النشر', type: 'datetime', validation: (r) => r.required() }),

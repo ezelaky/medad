@@ -14,6 +14,9 @@ export default defineType({
   ],
   fields: [
     defineField({ name: 'title', title: 'عنوان الحوار (الاقتباس الرئيسي)', type: 'string', validation: (r) => r.required() }),
+    defineField({ name: 'author', title: 'الكاتب / المحرر', type: 'string', description: 'اسم الكاتب أو المحرر كما سيظهر في المقال' }),
+    defineField({ name: 'subtitle', title: 'العنوان الفرعي الأول', type: 'string' }),
+    defineField({ name: 'subtitle2', title: 'العنوان الفرعي الثاني', type: 'string' }),
     defineField({ name: 'slug', title: 'الرابط', type: 'slug', options: { source: 'title' }, validation: (r) => r.required() }),
     defineField({ name: 'guestName', title: 'اسم الضيف', type: 'string', validation: (r) => r.required() }),
     defineField({ name: 'guestRole', title: 'صفة الضيف', type: 'string', description: 'مثال: ناشر، روائية، مترجم', validation: (r) => r.required() }),
