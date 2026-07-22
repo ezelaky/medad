@@ -21,7 +21,7 @@ export default defineType({
       title: 'المحتوى الموسّع',
       type: 'array',
       of: [{ type: 'block' }, pullQuote],
-      description: 'محتوى اختياري أطول من الملخص — ملاحظة: صفحة الكتاب الممنوع الحالية لا تعرض هذا الحقل بعد',
+      description: 'محتوى اختياري أطول من الملخص، يظهر أسفل قسم السبب الرسمي في صفحة الكتاب',
     }),
     defineField({ name: 'featured', title: 'العرض الكامل في أعلى الصفحة', type: 'boolean', initialValue: false }),
   ],

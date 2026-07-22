@@ -65,7 +65,7 @@ export const queries = {
     "id": slug.current, bookTitle, year, country, coverImage, summary, officialReason, featured
   }`,
   bannedBookBySlug: /* groq */ `*[_type == "bannedBookEntry" && slug.current == $slug][0]{
-    "id": slug.current, bookTitle, year, country, coverImage, summary, officialReason, featured
+    "id": slug.current, bookTitle, year, country, coverImage, summary, officialReason, featured, body
   }`,
 
   siteSettings: /* groq */ `*[_type == "siteSettings"][0]{ bestsellersWeekOf }`,

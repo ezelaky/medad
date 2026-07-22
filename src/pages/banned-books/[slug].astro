@@ -3,9 +3,18 @@ import { client, queries, imageUrl } from '../../lib/sanity';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BookCoverCard from '../../components/BookCoverCard.astro';
 import RedactedVerdict from '../../components/RedactedVerdict.astro';
+import { renderPortableText } from '../../lib/portableText';
 
 export async function getStaticPaths() {
-  const entries = await client.fetch(queries.bannedBookEntries);
+  // bannedBookEntries (the archive-grid list query) deliberately stays lean
+  // — it also powers the "others" sidebar below and the archive page
+  // itself, neither of which needs body's Portable Text content. Each
+  // page's own props come from bannedBookBySlug instead, same split
+  // interviews/[slug].astro already uses for the same reason.
+  const list = await client.fetch(queries.bannedBookEntries);
+  const entries = await Promise.all(
+    list.map((e: any) => client.fetch(queries.bannedBookBySlug, { slug: e.id }))
+  );
   return entries.map((entry: any) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
@@ -29,6 +38,12 @@ const others = (await client.fetch(queries.bannedBookEntries))
     <RedactedVerdict text={entry.officialReason} />
   </div>
 </section>
+
+{entry.body?.length > 0 && (
+  <div class="article-body">
+    <div set:html={renderPortableText(entry.body)} />
+  </div>
+)}
 
 {others.length > 0 && (
   <section class="browse">
@@ -70,6 +85,11 @@ const others = (await client.fetch(queries.bannedBookEntries))
   .featured .content { flex: 1; }
   .featured h1 { font-size: clamp(1.7rem, 2.8vw, 2.3rem); margin: 0 0 16px; line-height: 1.5; }
   .featured p.lead { color: var(--ink-soft); font-size: 1.05rem; margin: 0 0 8px; }
+
+  /* matches interviews/[slug].astro's .article-body — same typography for
+     rendered Portable Text (pullQuote included) across both pages */
+  .article-body { max-width: 680px; margin: 0 auto; padding: 0 6vw 8vh; font-size: 1.08rem; }
+  .article-body :global(p) { margin: 0 0 28px; }
 
   .browse { max-width: 1200px; margin: 0 auto 10vh; padding: 0 6vw; }
   .browse .section-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--ink); padding-bottom: 14px; margin-bottom: 32px; }
