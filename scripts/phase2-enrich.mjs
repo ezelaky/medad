@@ -113,6 +113,21 @@ async function run() {
   const inboxItem = await client.getDocument(DOCUMENT_ID);
   if (!inboxItem) throw new Error(`contentInboxItem ${DOCUMENT_ID} not found`);
 
+  // Idempotency guard, added after a real incident: the webhook filter
+  // this pipeline depends on (documented at the top of
+  // phase2-enrich.yml) is meant to exclude already-enriched items, but a
+  // webhook is configured by hand outside this repo — nothing stops it
+  // from being set up (or re-set-up, or misconfigured) without that
+  // exclusion. When that happened, the enrichedAt patch a few lines down
+  // kept re-matching the webhook's filter, which fired this workflow
+  // again, which patched enrichedAt again, forever — 2038 duplicate
+  // drafts for one item before it was caught. This check makes that
+  // failure mode impossible regardless of what the webhook filter says.
+  if (inboxItem.enrichedAt) {
+    console.warn(`${DOCUMENT_ID} already has enrichedAt (${inboxItem.enrichedAt}) — skipping to avoid creating a duplicate draft.`);
+    return;
+  }
+
   const sectionConfig = config.sections[inboxItem.section];
   if (!sectionConfig) {
     throw new Error(`Unknown section "${inboxItem.section}" on ${DOCUMENT_ID} — not in sources.config.json`);

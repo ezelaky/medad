@@ -1,14 +1,29 @@
 # ─────────────────────────────────────────────────────────────────────────
+# INCIDENT, 2026-07-22: a webhook configured with the filter this comment
+# used to recommend (`_type == "contentInboxItem" && status == "approved"`,
+# with no exclusion for already-enriched items) caused an infinite loop.
+# Phase 2 patches enrichedAt onto the inbox item after creating a draft;
+# that patch is itself an Update that still matches status == "approved",
+# so the webhook fired again, ran Phase 2 again, patched again, forever.
+# By the time this was caught, it had created 2038 + 1522 duplicate
+# interview drafts for two items and 9 duplicate longRead drafts for a
+# third, across ~3500+ workflow runs. The fix below (`!defined(enrichedAt)`
+# in the filter) closes the loop at the source; enrichedAt itself was
+# always meant to be exactly this kind of already-processed marker, it
+# just wasn't wired into the filter that reads it.
+#
 # MANUAL SETUP REQUIRED — this workflow only runs if a Sanity webhook is
 # configured to dispatch it. Nothing in this repo can create that webhook
 # for you; it has to be done once, by hand, in Sanity's own dashboard.
+# If a webhook already exists from before this fix, its filter needs to be
+# updated to match the one below, not just left as-is on re-enable.
 #
 # 1. Go to https://www.sanity.io/manage -> this project -> API -> Webhooks
-# 2. Create a webhook:
+# 2. Create (or edit the existing) webhook:
 #      Name:          Inbox Item Approved
 #      URL:           https://api.github.com/repos/ezelaky/medad/dispatches
 #      Trigger on:    Update
-#      Filter:        _type == "contentInboxItem" && status == "approved"
+#      Filter:        _type == "contentInboxItem" && status == "approved" && !defined(enrichedAt)
 #      HTTP method:   POST
 #      HTTP headers:
 #        Authorization: Bearer <GitHub PAT with repo scope>
@@ -29,6 +44,11 @@
 # type has no draft/publish split, so the webhook's "Update" trigger fires
 # on the actual status change itself, not on some later "Publish" click
 # the editor might forget.
+#
+# Belt-and-suspenders: phase2-enrich.mjs itself now also refuses to run a
+# second time against an item that already has enrichedAt set, logging a
+# warning and exiting 0 instead of creating another draft — so even a
+# misconfigured or re-delivered webhook can't reproduce this incident.
 # ─────────────────────────────────────────────────────────────────────────
 
 name: Phase 2 - Enrich approved inbox item
