@@ -73,7 +73,7 @@ const others = (await client.fetch(queries.interviews))
   .byline { font-size: 0.85rem; color: var(--ink-soft); display: flex; align-items: center; justify-content: center; gap: 10px; }
   .byline .author-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brass); }
 
-  .article-cover { max-width: 700px; margin: 0 auto 6vh; padding: 0 6vw; }
+  .article-cover { max-width: 700px; margin: 0 auto 1.5rem; padding: 0 6vw; }
   .article-cover .frame {
     aspect-ratio: 3 / 4; max-width: 320px; margin: 0 auto; border-radius: 2px; overflow: hidden;
     background: linear-gradient(155deg, #dcd3bd, #c9bd9f);
@@ -87,6 +87,14 @@ const others = (await client.fetch(queries.interviews))
   .related { max-width: 1100px; margin: 0 auto; padding: 6vh 6vw 10vh; border-top: 1px solid var(--line); }
   .related h2 { font-size: 1.4rem; margin: 0 0 30px; }
   .related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+  /* Aref Ruqaa's calligraphic strokes blur together below ~1.2rem (see
+     global.css's .display-lg comment) — at tablet/mobile the headline sits
+     well under its desktop clamp() size, so it switches to Markazi Text
+     for legibility instead of shrinking Aref Ruqaa further. */
+  @media (max-width: 768px) {
+    .article-head h1 { font-family: 'Markazi Text', serif; font-size: 2rem; line-height: 1.4; }
+  }
 
   @media (max-width: 700px) {
     .related-grid { grid-template-columns: 1fr; }
