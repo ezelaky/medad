@@ -70,6 +70,22 @@ export const queries = {
 
   siteSettings: /* groq */ `*[_type == "siteSettings"][0]{ bestsellersWeekOf }`,
 
+  // Homepage section strips — latest 3 per type, newest-created first
+  // (_createdAt, not publishedAt like the rest of the site's list queries:
+  // this is meant to surface what an editor just added, which _createdAt
+  // reflects immediately regardless of what publishedAt was backdated to).
+  // coverImage is aliased per type so index.astro can treat all three
+  // uniformly instead of branching on portraitImage vs coverImage.
+  homeInterviews: /* groq */ `*[_type == "interview" && defined(slug.current)] | order(_createdAt desc)[0...3]{
+    _id, title, slug, author, subtitle, "coverImage": portraitImage, guestRole, publishedAt
+  }`,
+  homeLongReads: /* groq */ `*[_type == "longRead" && defined(slug.current)] | order(_createdAt desc)[0...3]{
+    _id, title, slug, author, subtitle, coverImage, dek, publishedAt
+  }`,
+  homeBannedBooks: /* groq */ `*[_type == "bannedBookEntry" && defined(slug.current)] | order(_createdAt desc)[0...3]{
+    _id, bookTitle, slug, author, subtitle, coverImage, year, country
+  }`,
+
   // Each heroItems entry is {content, scrimStrength} — content resolves to
   // whichever of the 4 types it references; _type discriminates it in
   // index.astro, which maps each type to its own title/excerpt/image field

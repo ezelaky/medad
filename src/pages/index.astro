@@ -4,12 +4,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import { formatArabicDate } from '../lib/formatDate';
 
-const [articles, interviews, longReads, bestsellers, homepage] = await Promise.all([
+const [articles, interviews, longReads, bestsellers, homepage, homeInterviews, homeLongReads, homeBannedBooks] = await Promise.all([
   client.fetch(queries.articles),
   client.fetch(queries.interviews),
   client.fetch(queries.longReads),
   client.fetch(queries.bestsellerEntries),
   client.fetch(queries.homepage),
+  client.fetch(queries.homeInterviews),
+  client.fetch(queries.homeLongReads),
+  client.fetch(queries.homeBannedBooks),
 ]);
 
 // heroItems can mix article/interview/longRead/bannedBookEntry — resolve
@@ -51,10 +54,50 @@ const latest = [
   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   .slice(0, 5);
 
-const longReadFeat = [...longReads].sort(
-  (a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-)[0];
-const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slice(0, 4);
+// Four homepage strips below أحدث المقالات, all rendered with the same
+// ArticleCard "latest" pattern that section already uses — normalized to
+// one {href, tag, title, meta, cover} shape per strip so the template
+// below doesn't need to branch per content type.
+const interviewCards = homeInterviews.map((e: any) => ({
+  href: `/interviews/${e.slug.current}/`,
+  tag: 'حوارات',
+  title: e.title,
+  meta: formatArabicDate(new Date(e.publishedAt)),
+  cover: imageUrl(e.coverImage, 400),
+}));
+
+const longReadCards = homeLongReads.map((e: any) => ({
+  href: `/reads/${e.slug.current}/`,
+  tag: 'قراءات مطوّلة',
+  title: e.title,
+  meta: formatArabicDate(new Date(e.publishedAt)),
+  cover: imageUrl(e.coverImage, 400),
+}));
+
+const bannedBookCards = homeBannedBooks.map((e: any) => ({
+  href: `/banned-books/${e.slug.current}/`,
+  tag: 'كتب ممنوعة',
+  title: e.bookTitle,
+  meta: `${e.year} — ${e.country}`,
+  cover: imageUrl(e.coverImage, 400),
+}));
+
+// Bestsellers' "latest 3" is rank order, not _createdAt — rank is already
+// the section's own notion of "current top items", and sorting by
+// creation time instead could surface an odd mix across whichever week's
+// batch happened to be created most recently. No per-entry page exists
+// yet (see BookCoverCard.astro's rank-variant comment), so every card
+// points at the section index rather than a real detail route.
+const bestsellerCards = [...bestsellers]
+  .sort((a: any, b: any) => a.rank - b.rank)
+  .slice(0, 3)
+  .map((e: any) => ({
+    href: '/bestsellers/',
+    tag: 'الأكثر مبيعًا',
+    title: e.titleArabic || e.titleOriginal,
+    meta: e.author,
+    cover: imageUrl(e.coverImage, 400),
+  }));
 ---
 
 <BaseLayout title="مِداد — أخبار الكتب وثقافة النشر" activeKey="home">
@@ -110,34 +153,51 @@ const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slic
   </div>
 </section>
 
-<section class="trio">
-  {longReadFeat && (
-    <div class="trio-col longread-feat">
-      <div class="section-head"><h2>قراءات طويلة</h2><a href="/reads/">عرض الكل ←</a></div>
-      <a href={`/reads/${longReadFeat.id}/`}>
-        <div class="cover ui">{longReadFeat.coverImage ? <img src={imageUrl(longReadFeat.coverImage, 600)} alt="" /> : 'صورة'}</div>
-        <h3 class="display-sm">{longReadFeat.title}</h3>
-        <p>{longReadFeat.dek}</p>
-      </a>
-    </div>
-  )}
-
-  <div class="trio-col">
-    <div class="section-head"><h2>كتب جديدة</h2><a href="/bestsellers/">عرض الكل ←</a></div>
-    <div class="books-grid">
-      {newBooks.map((book: any) => (
-        <div class="cover">{book.coverImage && <img src={imageUrl(book.coverImage, 300)} alt="" />}</div>
-      ))}
-    </div>
-    <h4 class="display-sm">كل ما صدر حديثًا</h4>
-    <p class="desc">رواية، دراسة، شعر، سيرة...</p>
+<section class="home-strip">
+  <div class="section-head">
+    <h2>حوارات</h2>
+    <a href="/interviews/">عرض الكل ←</a>
   </div>
+  <div class="strip-grid">
+    {interviewCards.length > 0 ? interviewCards.map((item) => (
+      <ArticleCard variant="latest" href={item.href} coverSrc={item.cover} tag={item.tag} title={item.title} meta={item.meta} />
+    )) : <p class="ui empty-note">لا يوجد محتوى منشور بعد.</p>}
+  </div>
+</section>
 
-  <div class="trio-col voices">
-    <div class="section-head"><h2>أصوات من العالم</h2><a href="#">عرض الكل ←</a></div>
-    <div class="cover">صورة</div>
-    <h4 class="display-sm">هل تنجو الصحافة الثقافية في الغرب؟</h4>
-    <p class="desc">قراءة في مستقبل المجلات الأدبية والثقافية</p>
+<section class="home-strip">
+  <div class="section-head">
+    <h2>ملفات</h2>
+    <a href="/reads/">عرض الكل ←</a>
+  </div>
+  <div class="strip-grid">
+    {longReadCards.length > 0 ? longReadCards.map((item) => (
+      <ArticleCard variant="latest" href={item.href} coverSrc={item.cover} tag={item.tag} title={item.title} meta={item.meta} />
+    )) : <p class="ui empty-note">لا يوجد محتوى منشور بعد.</p>}
+  </div>
+</section>
+
+<section class="home-strip">
+  <div class="section-head">
+    <h2>الكتب الممنوعة</h2>
+    <a href="/banned-books/">عرض الكل ←</a>
+  </div>
+  <div class="strip-grid">
+    {bannedBookCards.length > 0 ? bannedBookCards.map((item) => (
+      <ArticleCard variant="latest" href={item.href} coverSrc={item.cover} tag={item.tag} title={item.title} meta={item.meta} />
+    )) : <p class="ui empty-note">لا يوجد محتوى منشور بعد.</p>}
+  </div>
+</section>
+
+<section class="home-strip">
+  <div class="section-head">
+    <h2>الأكثر مبيعًا</h2>
+    <a href="/bestsellers/">عرض الكل ←</a>
+  </div>
+  <div class="strip-grid">
+    {bestsellerCards.length > 0 ? bestsellerCards.map((item) => (
+      <ArticleCard variant="latest" href={item.href} coverSrc={item.cover} tag={item.tag} title={item.title} meta={item.meta} />
+    )) : <p class="ui empty-note">لا يوجد قائمة منشورة بعد.</p>}
   </div>
 </section>
 
@@ -204,38 +264,22 @@ const newBooks = [...bestsellers].sort((a: any, b: any) => a.rank - b.rank).slic
   .latest-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
   .empty-note { grid-column: 1 / -1; color: var(--ink-soft); font-size: 0.9rem; }
 
-  .trio { max-width: 1300px; margin: 0 auto; padding: 2vh 6vw 10vh; display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 32px; }
-  .trio-col .section-head { font-size: 1.05rem; }
-  .trio-col > a { text-decoration: none; color: inherit; display: block; }
-  .longread-feat .cover {
-    aspect-ratio: 16 / 10; background: linear-gradient(150deg, #e7e0d1, #d8cfba);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 16px; overflow: hidden;
-  }
-  .longread-feat .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .longread-feat h3 { font-size: 1.15rem; margin: 0 0 8px; }
-  .longread-feat p { font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 0.85rem; color: var(--ink-soft); margin: 0; }
-
-  .books-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
-  .books-grid .cover {
-    aspect-ratio: 3 / 4.3; background: linear-gradient(150deg, #e7e0d1, #d8cfba);
-    display: flex; align-items: center; justify-content: center; overflow: hidden;
-  }
-  .books-grid .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .trio-col h4 { font-size: 1rem; margin: 0 0 6px; }
-  .trio-col p.desc { font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 0.82rem; color: var(--ink-soft); margin: 0; }
-
-  .voices .cover {
-    aspect-ratio: 16 / 10; background: linear-gradient(150deg, #dcd3bd, #c9bd9f);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 16px;
-  }
+  /* Four strips below أحدث المقالات (حوارات / ملفات / الكتب الممنوعة /
+     الأكثر مبيعًا) — same section-head + card-grid pattern as .latest
+     above, just 3 columns instead of 5 to match "latest 3 items" instead
+     of "latest 5". Reuses ArticleCard's "latest" variant directly. */
+  .home-strip { max-width: 1300px; margin: 0 auto; padding: 2vh 6vw 6vh; }
+  .strip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 
   @media (max-width: 900px) {
     .hero { aspect-ratio: 4 / 5; }
     .hero-text { padding: 4vh 6vw 5vh; }
     .hero-text h1, .hero-text p.lead { max-width: none; }
     .latest-grid { grid-template-columns: repeat(2, 1fr); }
-    .trio { grid-template-columns: 1fr; gap: 44px; }
+    .strip-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    .strip-grid { grid-template-columns: 1fr; }
   }
 </style>
