@@ -6,15 +6,18 @@ import { urlFor } from './sanity';
 // InlineFigure.astro so the HTML output matches those components' markup.
 const components: Partial<PortableTextComponents> = {
   types: {
+    // No display-lg here deliberately — the pull-quote redesign uses
+    // Markazi Text (set on .pull-quote itself in global.css), not Aref
+    // Ruqaa, so the class that used to carry that font no longer belongs.
     pullQuote: ({ value }) => `
-      <div class="pull-quote display-lg">
+      <div class="pull-quote">
         ${value.quote}
         ${value.attribution ? `<span class="ui">${value.attribution}</span>` : ''}
       </div>
     `,
     inlineFigure: ({ value }) => `
       <figure class="inline-figure">
-        <div class="frame"><img src="${urlFor(value.image).width(1200).url()}" alt="" /></div>
+        <div class="frame"><img src="${urlFor(value.image).width(1200).url()}" alt="${value.alt ?? ''}" /></div>
         <figcaption class="ui">${value.caption ?? ''}</figcaption>
       </figure>
     `,

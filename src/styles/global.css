@@ -87,3 +87,56 @@ a {
     box-shadow: inset 0 0 36px 28px var(--paper);
   }
 }
+
+/* Pull quote and inline-figure are rendered as raw HTML strings via
+   set:html (see renderPortableText in src/lib/portableText.ts) inside
+   interview/longRead/bannedBookEntry's article bodies — Astro's scoped
+   <style> blocks never reach content injected that way (they only
+   attribute-select elements the component's own template actually
+   rendered), which is exactly why PullQuote.astro's and
+   InlineFigure.astro's own scoped styles have never applied to real
+   Sanity content. Defined once here, globally, rather than duplicated
+   per page: unlike .article-body (deliberately allowed to differ per
+   page, e.g. bannedBookEntry is wider), the pull quote is meant to look
+   identical everywhere it appears. */
+.pull-quote {
+  font-family: 'Markazi Text', serif;
+  font-size: 1.6rem;
+  line-height: 1.5;
+  color: var(--ink);
+  width: 100%;
+  padding: 2rem 1.75rem;
+  margin: 2.5rem 0;
+  background: #EDE8DC; /* color-mix(in srgb, var(--paper) 85%, var(--ink) 15%) — see below */
+  border: none;
+  border-top: 2px solid var(--crimson);
+  border-bottom: 2px solid var(--crimson);
+  quotes: none;
+  text-align: right;
+}
+/* Progressive enhancement over the hardcoded fallback above — color-mix
+   has broad modern support but the spec explicitly asked for a fallback,
+   so the flat-color rule stays as the base and this only upgrades it in
+   browsers that understand color-mix(). */
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  .pull-quote {
+    background: color-mix(in srgb, var(--paper) 85%, var(--ink) 15%);
+  }
+}
+.pull-quote span { display: block; font-size: 0.8rem; color: var(--brass); margin-top: 10px; }
+
+@media (max-width: 768px) {
+  .pull-quote {
+    font-size: 1.35rem;
+    padding: 1.5rem 1.25rem;
+    margin: 2rem 0;
+  }
+}
+
+.inline-figure { margin: 44px 0; }
+.inline-figure .frame {
+  aspect-ratio: 16 / 9; border-radius: 2px; overflow: hidden;
+  background: linear-gradient(160deg, #e7e0d1, #d8cfba);
+}
+.inline-figure .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.inline-figure figcaption { font-size: 0.78rem; color: var(--ink-soft); margin-top: 10px; text-align: center; }

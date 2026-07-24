@@ -31,9 +31,7 @@ function resolveHeroItem(heroItem: any) {
   return {
     href: `${routePrefixes[item._type]}${item.id}/`,
     title: item.title ?? item.bookTitle,
-    excerpt: item.excerpt ?? item.dek ?? item.summary,
     cover: imageUrl(item.coverImage ?? item.portraitImage, 1600),
-    date: item.publishedAt,
     scrimOpacity: scrimOpacity[heroItem.scrimStrength] ?? scrimOpacity.medium,
   };
 }
@@ -113,15 +111,7 @@ const bestsellerCards = [...bestsellers]
       <div class="hero-scrim"></div>
       <div class="hero-text">
         <div class="hero-tag ui">مقال رئيسي</div>
-        <h1 class="display-lg">{heroSlide.title}</h1>
-        {heroSlide.excerpt && <p class="lead">{heroSlide.excerpt}</p>}
-        {heroSlide.date && (
-          <div class="hero-byline ui">بقلم: فريق التحرير &nbsp; {formatArabicDate(new Date(heroSlide.date))}</div>
-        )}
-        <a class="read-more" href={heroSlide.href}>
-          اقرأ المزيد
-          <svg viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>
-        </a>
+        <h1 class="display-lg"><a href={heroSlide.href}>{heroSlide.title}</a></h1>
       </div>
     </div>
     {heroItems.length > 1 && (
@@ -243,15 +233,15 @@ const bestsellerCards = [...bestsellers]
   .hero-tag { color: var(--red); font-size: 0.85rem; font-weight: 600; margin-bottom: 14px; }
   .hero-text h1 {
     color: var(--paper); font-size: clamp(1.7rem, 3vw, 2.6rem); line-height: 1.5;
-    margin: 0 0 14px; max-width: 640px;
+    margin: 0; max-width: 640px;
   }
-  .hero-text p.lead { color: rgba(246, 242, 233, 0.88); font-size: 1rem; margin: 0 0 16px; max-width: 600px; }
-  .hero-byline { font-size: 0.82rem; color: rgba(246, 242, 233, 0.75); margin-bottom: 16px; }
-  .read-more {
-    display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--paper);
-    font-family: 'IBM Plex Sans Arabic', sans-serif; font-weight: 600; font-size: 0.9rem; width: fit-content;
+  /* the title is the hero's only interactive element (no summary, no
+     button) — underline + slight opacity dip on hover is the only
+     affordance signaling it's clickable */
+  .hero-text h1 a {
+    color: inherit; text-decoration: none; transition: opacity 0.2s ease;
   }
-  .read-more svg { width: 16px; height: 16px; stroke: var(--paper); fill: none; stroke-width: 1.8; }
+  .hero-text h1 a:hover { text-decoration: underline; opacity: 0.85; }
 
   .dots { display: flex; justify-content: center; gap: 7px; margin-top: 20px; }
   .dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--line); }

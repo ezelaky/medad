@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { pullQuote } from './blocks/pullQuote';
+import { inlineFigure } from './blocks/inlineFigure';
 
 export default defineType({
   name: 'bannedBookEntry',
@@ -20,7 +21,7 @@ export default defineType({
       name: 'body',
       title: 'المحتوى الموسّع',
       type: 'array',
-      of: [{ type: 'block' }, pullQuote],
+      of: [{ type: 'block' }, pullQuote, inlineFigure],
       description: 'محتوى اختياري أطول من الملخص، يظهر أسفل قسم السبب الرسمي في صفحة الكتاب',
     }),
     defineField({ name: 'featured', title: 'العرض الكامل في أعلى الصفحة', type: 'boolean', initialValue: false }),

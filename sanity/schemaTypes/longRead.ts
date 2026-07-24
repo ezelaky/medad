@@ -1,20 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { pullQuote } from './blocks/pullQuote';
-
-// Custom Portable Text block matching article.html's .inline-figure
-// pattern — rendered by the ptComponents map in src/lib/portableText.ts.
-// (pullQuote itself now lives in ./blocks/pullQuote.ts, shared with
-// interview and bannedBookEntry.)
-const inlineFigure = {
-  name: 'inlineFigure',
-  title: 'صورة داخل النص',
-  type: 'object',
-  fields: [
-    { name: 'image', title: 'الصورة', type: 'image', options: { hotspot: true } },
-    { name: 'caption', title: 'وصف الصورة', type: 'string' },
-  ],
-  preview: { select: { title: 'caption', media: 'image' } },
-};
+import { inlineFigure } from './blocks/inlineFigure';
 
 export default defineType({
   name: 'longRead',
