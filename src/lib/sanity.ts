@@ -96,6 +96,21 @@ export const queries = {
     _id, bookTitle, slug, author, subtitle, coverImage, year, country
   }`,
 
+  // Homepage-only "الأكثر مبيعًا" strip — curates nonfiction before fiction
+  // (per section design), capped at 5, requiring titleArabic since an
+  // untranslated entry (see bestsellerEntry's "بانتظار الترجمة" fieldset)
+  // has no fallback title to show on a card this small. Deliberately a new
+  // query rather than reusing bestsellerEntries (bestsellers.astro), which
+  // needs every entry across all categories, unfiltered by translation
+  // status, for its own tab-filtered full list.
+  homeBestsellers: /* groq */ `*[_type == "bestsellerEntry" && defined(titleArabic)] | order(
+    (listCategory == "غير روائي") desc,
+    (listCategory == "روايات") desc,
+    rank asc
+  )[0...5]{
+    _id, titleArabic, author, publisher, rank, listCategory, trend, coverImage
+  }`,
+
   // Each heroItems entry is {content, scrimStrength} — content resolves to
   // whichever of the 4 types it references; _type discriminates it in
   // index.astro, which maps each type to its own title/excerpt/image field
