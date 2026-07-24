@@ -1,48 +1,60 @@
 ---
 import { client, queries, imageUrl } from '../../lib/sanity';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import BookCoverCard from '../../components/BookCoverCard.astro';
-import RedactedVerdict from '../../components/RedactedVerdict.astro';
 
-const entries = await client.fetch(queries.bannedBookEntries);
-const featured = entries.find((e: any) => e.featured) ?? entries[0];
-const archive = featured ? entries.filter((e: any) => e.id !== featured.id) : [];
+const entries = await client.fetch(queries.bannedBookArchive);
+const featured = entries[0] ?? null;
+const olderEntries = entries.slice(1);
 ---
 
 <BaseLayout title="أرشيف الكتب الممنوعة — مِداد" activeKey="banned">
 
-<p class="page-intro ui">كتب حاول البعض إسكاتها عبر التاريخ. نحكي متى، ومَن قرر، ولماذا — وأين وصل الكتاب اليوم.<br />اضغط على أي سطر مغطّى لتكشف الحكم الرسمي.</p>
+<p class="page-intro ui">كتب حاول البعض إسكاتها عبر التاريخ. نحكي متى، ومَن قرر، ولماذا — وأين وصل الكتاب اليوم.</p>
 
 {featured ? (
-  <section class="featured">
-    <div class="cover">
-      {featured.coverImage && <img src={imageUrl(featured.coverImage, 700)} alt="أرشيف" />}
-      <div class="badge"><span class="yr">{featured.year}</span><span class="place">{featured.country}</span></div>
-    </div>
+  <section class="featured-card">
+    <a class="cover" href={`/banned-books/${featured.slug.current}/`}>
+      {featured.coverImage && <img src={imageUrl(featured.coverImage, 700)} alt="" />}
+    </a>
     <div class="content">
-      <a href={`/banned-books/${featured.id}/`}><h2 class="display-lg">{featured.bookTitle}</h2></a>
-      <p class="lead">{featured.summary}</p>
-      <RedactedVerdict text={featured.officialReason} />
+      <div class="meta-row ui">
+        <span class="country">{featured.country}</span>
+        {featured.year && <span class="year">{featured.year}</span>}
+      </div>
+      <a class="title-link" href={`/banned-books/${featured.slug.current}/`}>
+        <h2 class="display-lg">{featured.bookTitle}</h2>
+      </a>
+      {featured.author && <p class="author ui">{featured.author}</p>}
+      {(featured.subtitle || featured.summary) && <p class="lead">{featured.subtitle || featured.summary}</p>}
+      <a class="read-more ui" href={`/banned-books/${featured.slug.current}/`}>اقرأ المزيد ←</a>
     </div>
   </section>
 ) : (
   <p class="page-intro ui">لا يوجد كتب ممنوعة منشورة بعد.</p>
 )}
 
-{archive.length > 0 && (
-  <section class="browse">
+{olderEntries.length > 0 && (
+  <section class="older">
     <div class="section-head">
-      <h2 class="display-lg">من الأرشيف</h2>
+      <h2 class="display-lg">إصدارات سابقة</h2>
     </div>
-    <div class="browse-grid">
-      {archive.map((entry: any) => (
-        <BookCoverCard
-          variant="browse"
-          href={`/banned-books/${entry.id}/`}
-          coverSrc={imageUrl(entry.coverImage, 400)}
-          title={entry.bookTitle}
-          tagText={`${entry.year} — ${entry.country}`}
-        />
+    <div class="older-list">
+      {olderEntries.map((entry: any) => (
+        <div class="older-card">
+          <a class="cover" href={`/banned-books/${entry.slug.current}/`}>
+            {entry.coverImage && <img src={imageUrl(entry.coverImage, 240)} alt="" />}
+          </a>
+          <div class="content">
+            <div class="meta-row ui">
+              <span class="country">{entry.country}</span>
+              {entry.year && <span class="year">{entry.year}</span>}
+            </div>
+            <a href={`/banned-books/${entry.slug.current}/`}>
+              <h3 class="display-sm">{entry.bookTitle}</h3>
+            </a>
+            {entry.author && <p class="author ui">{entry.author}</p>}
+          </div>
+        </div>
       ))}
     </div>
   </section>
@@ -51,35 +63,77 @@ const archive = featured ? entries.filter((e: any) => e.id !== featured.id) : []
 </BaseLayout>
 
 <style>
-  .featured { max-width: 1200px; margin: 0 auto 8vh; padding: 0 6vw; display: flex; gap: 44px; align-items: flex-start; }
-  .featured .cover {
-    flex: 0 0 34%; aspect-ratio: 3 / 4; border-radius: 2px; position: relative; overflow: hidden;
+  /* ---- Featured entry ---- */
+  .featured-card {
+    max-width: 1200px; margin: 0 auto 3rem; padding: 0;
+    display: flex;
+    background: var(--card);
+    border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .featured-card .cover {
+    flex: 0 0 40%; aspect-ratio: 3 / 4; position: relative; overflow: hidden; display: block;
     background: linear-gradient(160deg, #e7e0d1, #d8cfba);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'IBM Plex Sans Arabic', sans-serif; color: var(--ink-soft); font-size: 0.8rem;
   }
-  .featured .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .featured .cover .badge {
-    position: absolute; bottom: 0; right: 0; left: 0;
-    background: linear-gradient(to top, rgba(23, 21, 18, 0.82), transparent);
-    color: var(--paper); padding: 20px 16px 12px; text-align: right;
-    font-family: 'IBM Plex Sans Arabic', sans-serif;
-  }
-  .featured .cover .badge .yr { display: block; font-size: 1rem; font-weight: 600; }
-  .featured .cover .badge .place { display: block; font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
-  .featured .content { flex: 1; }
-  .featured .content > a { text-decoration: none; color: inherit; }
-  .featured h2 { font-size: clamp(1.5rem, 2.6vw, 2rem); margin: 0 0 16px; line-height: 1.5; }
-  .featured p.lead { color: var(--ink-soft); font-size: 1rem; margin: 0 0 8px; }
+  .featured-card .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  .browse { max-width: 1200px; margin: 0 auto 10vh; padding: 0 6vw; }
-  .browse .section-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--ink); padding-bottom: 14px; margin-bottom: 32px; }
-  .browse .section-head h2 { font-size: 1.3rem; margin: 0; }
-  .browse-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+  .featured-card .content { flex: 1; padding: 2.5rem; display: flex; flex-direction: column; }
+  .meta-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+  .meta-row .country { color: var(--crimson); font-size: 0.85rem; font-weight: 600; }
+  .meta-row .year { color: var(--ink-soft); font-size: 0.82rem; }
+
+  .featured-card .title-link { text-decoration: none; color: inherit; }
+  .featured-card h2 {
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem); margin: 0 0 10px; line-height: 1.5;
+    transition: opacity 0.2s ease;
+  }
+  .featured-card .title-link:hover h2 { text-decoration: underline; opacity: 0.85; }
+
+  .featured-card .author { color: var(--ink-soft); font-size: 0.85rem; margin: 0 0 14px; }
+  .featured-card .lead { color: var(--ink-soft); font-size: 1rem; margin: 0 0 20px; flex: 1; }
+
+  .featured-card .read-more {
+    color: var(--crimson); font-size: 0.85rem; text-decoration: none; width: fit-content;
+    border-bottom: 1px solid transparent;
+  }
+  .featured-card .read-more:hover { border-color: var(--crimson); }
+
+  /* Aref Ruqaa -> Markazi Text under 768px, same breakpoint and values as
+     article headlines (interviews/[slug].astro, reads/[slug].astro) */
+  @media (max-width: 768px) {
+    .featured-card h2 { font-family: 'Markazi Text', serif; font-size: 2rem; line-height: 1.4; }
+  }
+
+  /* ---- Older entries ---- */
+  .older { max-width: 1200px; margin: 0 auto; padding: 0 6vw 10vh; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--ink); padding-bottom: 14px; margin-bottom: 32px; }
+  .section-head h2 { font-size: 1.3rem; margin: 0; }
+
+  .older-list { display: flex; flex-direction: column; gap: 18px; }
+  .older-card {
+    display: flex; gap: 20px;
+    background: var(--card);
+    border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+    border-radius: 4px;
+    padding: 14px;
+  }
+  .older-card .cover {
+    flex: 0 0 120px; aspect-ratio: 3 / 4; border-radius: 2px; overflow: hidden; display: block;
+    background: linear-gradient(160deg, #e7e0d1, #d8cfba);
+  }
+  .older-card .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .older-card .content { flex: 1; min-width: 0; }
+  .older-card .meta-row { margin-bottom: 8px; }
+  .older-card .meta-row .country { font-size: 0.78rem; }
+  .older-card .content > a { text-decoration: none; color: inherit; }
+  .older-card h3 { font-size: 1.1rem; margin: 0 0 6px; line-height: 1.4; }
+  .older-card .content > a:hover h3 { text-decoration: underline; }
+  .older-card .author { color: var(--ink-soft); font-size: 0.82rem; margin: 0; }
 
   @media (max-width: 700px) {
-    .featured { flex-direction: column; }
-    .featured .cover { flex: none; width: 100%; }
-    .browse-grid { grid-template-columns: repeat(2, 1fr); }
+    .featured-card { flex-direction: column; }
+    .featured-card .cover { flex: none; aspect-ratio: 16 / 10; }
+    .featured-card .content { padding: 1.5rem; }
   }
 </style>

@@ -68,6 +68,16 @@ export const queries = {
     "id": slug.current, bookTitle, author, year, country, coverImage, summary, officialReason, featured, body
   }`,
 
+  // Dedicated to the redesigned /banned-books/ listing page — deliberately
+  // separate from bannedBookEntries above rather than modifying it in
+  // place, since that query is also relied on by [slug].astro (its
+  // getStaticPaths and "others" sidebar), which expects a different field
+  // shape (id aliased from slug.current, no author/subtitle). Changing it
+  // in place would've silently broken that page.
+  bannedBookArchive: /* groq */ `*[_type == "bannedBookEntry" && defined(slug.current)] | order(_createdAt desc){
+    _id, bookTitle, slug, author, subtitle, country, year, summary, coverImage, _createdAt
+  }`,
+
   siteSettings: /* groq */ `*[_type == "siteSettings"][0]{ bestsellersWeekOf }`,
 
   // Homepage section strips — latest 3 per type, newest-created first
