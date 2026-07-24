@@ -43,17 +43,21 @@ const others = (await client.fetch(queries.bannedBookEntries))
   </div>
 </section>
 
-<div class="article-header">
+<div class="article-content">
   {entry.author && <p class="byline display-sm">{entry.author}</p>}
-  {entry.summary && <p class="lead">{entry.summary}</p>}
-  <RedactedVerdict text={entry.officialReason} />
-</div>
 
-{entry.body?.length > 0 && (
-  <div class="article-body">
-    <div set:html={renderPortableText(entry.body)} />
+  {entry.body?.length > 0 && (
+    <div class="article-body">
+      <div set:html={renderPortableText(entry.body)} />
+    </div>
+  )}
+
+  <div class="ban-reason">
+    <hr class="divider" />
+    <p class="official-label ui">السجل الرسمي</p>
+    <RedactedVerdict text={entry.officialReason} />
   </div>
-)}
+</div>
 
 {others.length > 0 && (
   <section class="browse">
@@ -81,7 +85,7 @@ const others = (await client.fetch(queries.bannedBookEntries))
      listing page's featured card (index.astro .featured-hero): fixed
      height, image as an absolute-positioned background, bottom scrim,
      overlaid text. Author is deliberately excluded from the overlay
-     (see .article-header .byline below) — it reads as the article's
+     (see .article-content .byline below) — it reads as the article's
      byline, not part of the hero graphic. */
   .hero {
     position: relative; display: block;
@@ -123,21 +127,31 @@ const others = (await client.fetch(queries.bannedBookEntries))
     .hero h1 { font-family: 'Markazi Text', serif; font-size: 2rem; line-height: 1.4; }
   }
 
-  /* ---- Below the hero — author, excerpt, ban reason. Same 720px column
-     the article body already used, so the two line up. */
-  .article-header { max-width: 720px; margin: 0 auto; padding: 5vh 6vw 6vh; }
-  .article-header .byline { font-size: 1.4rem; font-weight: 700; color: var(--ink); margin: 0 0 1.5rem; }
-  .article-header .lead {
-    font-family: 'Noto Naskh Arabic', serif; font-size: 1.1rem; color: var(--ink-soft); margin: 0;
-  }
+  /* ---- Below the hero — author, body, ban reason all share one column.
+     Astro scopes this per-page automatically, so 800px only affects this
+     page — interviews/[slug].astro and reads/[slug].astro each have their
+     own separately-scoped .article-body rule (720px/680px) that this
+     doesn't touch. Wider here specifically because this page's body
+     content tends to run longer once an entry has one. */
+  .article-content { max-width: 800px; margin: 0 auto; padding: 5vh 6vw 8vh; }
+  .article-content .byline { font-size: 1.4rem; font-weight: 700; color: var(--ink); margin: 0 0 2rem; }
 
-  /* Astro scopes this per-page automatically, so widening this max-width
-     only affects this page — interviews/[slug].astro and reads/[slug].astro
-     each have their own separately-scoped .article-body rule (currently
-     680px) that this doesn't touch. Wider here specifically because this
-     page's body content tends to run longer once an entry has one. */
-  .article-body { max-width: 720px; margin: 0 auto; padding: 0 6vw 8vh; font-size: 1.08rem; }
+  .article-body { font-size: 1.08rem; }
   .article-body :global(p) { margin: 0 0 28px; }
+
+  /* the ban reason now sits at the end of the article (after the body)
+     instead of right below the author — the divider + label signal that
+     shift from narrative body to official record. */
+  .ban-reason .divider { border: none; border-top: 1px solid var(--ink); opacity: 0.15; margin: 3rem 0 2rem; }
+  .ban-reason .official-label { color: var(--crimson); font-size: 0.85rem; margin: 0 0 4px; }
+
+  /* placed after the base .article-content rule (not grouped with the
+     .hero h1 768px block above) so equal-specificity cascade actually
+     lets this win at narrow widths — an earlier version of this rule
+     sat before the base rule in source order and silently lost to it. */
+  @media (max-width: 768px) {
+    .article-content { padding: 4vh 1.25rem 5vh; }
+  }
 
   .browse { max-width: 1200px; margin: 0 auto 10vh; padding: 0 6vw; }
   .browse .section-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--ink); padding-bottom: 14px; margin-bottom: 32px; }
@@ -147,7 +161,6 @@ const others = (await client.fetch(queries.bannedBookEntries))
   @media (max-width: 700px) {
     .hero { height: 300px; }
     .hero .hero-text { padding: 1.25rem; }
-    .article-header { padding: 4vh 6vw 5vh; }
     .browse-grid { grid-template-columns: repeat(2, 1fr); }
   }
 </style>
