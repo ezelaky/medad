@@ -12,23 +12,22 @@ const olderEntries = entries.slice(1);
 <p class="page-intro ui">كتب حاول البعض إسكاتها عبر التاريخ. نحكي متى، ومَن قرر، ولماذا — وأين وصل الكتاب اليوم.</p>
 
 {featured ? (
-  <section class="featured-card">
-    <a class="cover" href={`/banned-books/${featured.slug.current}/`}>
-      {featured.coverImage && <img src={imageUrl(featured.coverImage, 700)} alt="" />}
-    </a>
-    <div class="content">
+  <a class="featured-hero" href={`/banned-books/${featured.slug.current}/`}>
+    {featured.coverImage ? (
+      <img class="cover-image" src={imageUrl(featured.coverImage, 1400)} alt="" />
+    ) : (
+      <div class="cover-placeholder ui">صورة</div>
+    )}
+    <div class="scrim"></div>
+    <div class="text">
       <div class="meta-row ui">
         <span class="country">{featured.country}</span>
         {featured.year && <span class="year">{featured.year}</span>}
       </div>
-      <a class="title-link" href={`/banned-books/${featured.slug.current}/`}>
-        <h2 class="display-lg">{featured.bookTitle}</h2>
-      </a>
+      <h2 class="display-lg">{featured.bookTitle}</h2>
       {featured.author && <p class="author ui">{featured.author}</p>}
-      {(featured.subtitle || featured.summary) && <p class="lead">{featured.subtitle || featured.summary}</p>}
-      <a class="read-more ui" href={`/banned-books/${featured.slug.current}/`}>اقرأ المزيد ←</a>
     </div>
-  </section>
+  </a>
 ) : (
   <p class="page-intro ui">لا يوجد كتب ممنوعة منشورة بعد.</p>
 )}
@@ -63,47 +62,63 @@ const olderEntries = entries.slice(1);
 </BaseLayout>
 
 <style>
-  /* ---- Featured entry ---- */
-  .featured-card {
-    max-width: 1200px; margin: 0 auto 3rem; padding: 0;
-    display: flex;
-    background: var(--card);
-    border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .featured-card .cover {
-    flex: 0 0 40%; aspect-ratio: 3 / 4; position: relative; overflow: hidden; display: block;
+  /* ---- Featured entry — landscape hero, same scrim/overlay pattern as
+     the homepage hero (index.astro .hero/.hero-scrim/.hero-text), but
+     with a fixed height instead of aspect-ratio and hardcoded scrim
+     stops instead of the homepage's per-slide --scrim-opacity, since
+     this card doesn't have a "strength" setting from the CMS. */
+  .featured-hero {
+    position: relative; display: block;
+    max-width: 1200px; margin: 0 auto 3rem;
+    height: 420px; border-radius: 4px; overflow: hidden;
+    text-decoration: none; color: inherit;
     background: linear-gradient(160deg, #e7e0d1, #d8cfba);
   }
-  .featured-card .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-  .featured-card .content { flex: 1; padding: 2.5rem; display: flex; flex-direction: column; }
-  .meta-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
-  .meta-row .country { color: var(--crimson); font-size: 0.85rem; font-weight: 600; }
-  .meta-row .year { color: var(--ink-soft); font-size: 0.82rem; }
-
-  .featured-card .title-link { text-decoration: none; color: inherit; }
-  .featured-card h2 {
-    font-size: clamp(1.6rem, 2.8vw, 2.2rem); margin: 0 0 10px; line-height: 1.5;
-    transition: opacity 0.2s ease;
+  .featured-hero .cover-image {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center top; display: block;
   }
-  .featured-card .title-link:hover h2 { text-decoration: underline; opacity: 0.85; }
-
-  .featured-card .author { color: var(--ink-soft); font-size: 0.85rem; margin: 0 0 14px; }
-  .featured-card .lead { color: var(--ink-soft); font-size: 1rem; margin: 0 0 20px; flex: 1; }
-
-  .featured-card .read-more {
-    color: var(--crimson); font-size: 0.85rem; text-decoration: none; width: fit-content;
-    border-bottom: 1px solid transparent;
+  .featured-hero .cover-placeholder {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; color: var(--ink-soft);
   }
-  .featured-card .read-more:hover { border-color: var(--crimson); }
+  .featured-hero .scrim {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(
+      to top,
+      rgba(23, 20, 15, 0.85) 0%,
+      rgba(23, 20, 15, 0.4) 50%,
+      rgba(23, 20, 15, 0) 100%
+    );
+  }
+  .featured-hero .text {
+    position: absolute; inset: auto 0 0 0;
+    padding: 2rem; text-align: right;
+  }
+  /* meta-row/country/year base rules are shared with .older-card below —
+     this only overrides spacing and the year color, since the hero sits
+     on a dark scrim (needs paper/white) while the older cards sit on a
+     plain card background (needs ink-soft). */
+  .featured-hero .meta-row { margin-bottom: 10px; }
+  .featured-hero .meta-row .year { color: var(--paper); opacity: 0.85; }
+  .featured-hero h2 {
+    color: var(--paper); font-size: clamp(1.7rem, 3vw, 2.6rem); line-height: 1.5;
+    margin: 0 0 8px; max-width: 720px; transition: opacity 0.2s ease;
+  }
+  .featured-hero:hover h2 { text-decoration: underline; opacity: 0.9; }
+  .featured-hero .author { color: var(--paper); opacity: 0.85; font-size: 0.85rem; margin: 0; }
 
   /* Aref Ruqaa -> Markazi Text under 768px, same breakpoint and values as
      article headlines (interviews/[slug].astro, reads/[slug].astro) */
   @media (max-width: 768px) {
-    .featured-card h2 { font-family: 'Markazi Text', serif; font-size: 2rem; line-height: 1.4; }
+    .featured-hero h2 { font-family: 'Markazi Text', serif; font-size: 2rem; line-height: 1.4; }
   }
+
+  /* shared by .featured-hero .meta-row and .older-card .meta-row */
+  .meta-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+  .meta-row .country { color: var(--crimson); font-size: 0.85rem; font-weight: 600; }
+  .meta-row .year { color: var(--ink-soft); font-size: 0.82rem; }
 
   /* ---- Older entries ---- */
   .older { max-width: 1200px; margin: 0 auto; padding: 0 6vw 10vh; }
@@ -132,8 +147,7 @@ const olderEntries = entries.slice(1);
   .older-card .author { color: var(--ink-soft); font-size: 0.82rem; margin: 0; }
 
   @media (max-width: 700px) {
-    .featured-card { flex-direction: column; }
-    .featured-card .cover { flex: none; aspect-ratio: 16 / 10; }
-    .featured-card .content { padding: 1.5rem; }
+    .featured-hero { height: 280px; }
+    .featured-hero .text { padding: 1.25rem; }
   }
 </style>
