@@ -25,7 +25,6 @@ const olderEntries = entries.slice(1);
         {featured.year && <span class="year">{featured.year}</span>}
       </div>
       <h2 class="display-lg">{featured.bookTitle}</h2>
-      {featured.author && <p class="author ui">{featured.author}</p>}
     </div>
   </a>
 ) : (
@@ -70,7 +69,7 @@ const olderEntries = entries.slice(1);
   .featured-hero {
     position: relative; display: block;
     max-width: 1200px; margin: 0 auto 3rem;
-    height: 420px; border-radius: 4px; overflow: hidden;
+    height: 520px; border-radius: 4px; overflow: hidden;
     text-decoration: none; color: inherit;
     background: linear-gradient(160deg, #e7e0d1, #d8cfba);
   }
@@ -107,7 +106,6 @@ const olderEntries = entries.slice(1);
     margin: 0 0 8px; max-width: 720px; transition: opacity 0.2s ease;
   }
   .featured-hero:hover h2 { text-decoration: underline; opacity: 0.9; }
-  .featured-hero .author { color: var(--paper); opacity: 0.85; font-size: 0.85rem; margin: 0; }
 
   /* Aref Ruqaa -> Markazi Text under 768px, same breakpoint and values as
      article headlines (interviews/[slug].astro, reads/[slug].astro) */
@@ -147,7 +145,7 @@ const olderEntries = entries.slice(1);
   .older-card .author { color: var(--ink-soft); font-size: 0.82rem; margin: 0; }
 
   @media (max-width: 700px) {
-    .featured-hero { height: 280px; }
+    .featured-hero { height: 340px; }
     .featured-hero .text { padding: 1.25rem; }
   }
 </style>
